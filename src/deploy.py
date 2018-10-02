@@ -15,8 +15,8 @@ def picture():
     plt.show()
 
 
-@app.route('/home')
-def home():
+@app.route('/')
+def index():
     # def on_message(client, userdata, message):
     #     print("message recgeived ", str(message.payload.decode("utf-8", "ignore")))
     #     print("message topic=", message.topic)
