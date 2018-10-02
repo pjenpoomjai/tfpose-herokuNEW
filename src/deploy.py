@@ -72,4 +72,4 @@ if __name__ == "__main__":
     t = Terrain()
     print("creating new instance")
     client = mqtt.Client('client')  # create new instance
-    app.run()
+    index()
