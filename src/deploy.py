@@ -7,7 +7,7 @@ import processImage
 from processImage import Terrain
 #app = Flask(__name__)
 
-@app.route('/')
+#@app.route('/')
 def index():
     def on_connect(client, userdata, flags, rc):
         print("Connected with result code "+str(rc))
