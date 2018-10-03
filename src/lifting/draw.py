@@ -140,9 +140,12 @@ def plot_pose_adapt(pose,figure):
                    c=col, marker='o', edgecolor=col)
     smallest = pose.min()
     largest = pose.max()
-    ax.set_xlim3d(smallest, largest)
-    ax.set_ylim3d(smallest, largest)
-    ax.set_zlim3d(smallest, largest)
+    #ax.set_xlim3d(smallest, largest)
+    #ax.set_ylim3d(smallest, largest)
+    #ax.set_zlim3d(smallest, largest)
+    ax.set_xlim3d(-1500, 1500)
+    ax.set_ylim3d(-1500, 1500)
+    ax.set_zlim3d(-1500, 1500)
 
     #return fig
     return figure
