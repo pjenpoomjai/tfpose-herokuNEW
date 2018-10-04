@@ -15,6 +15,7 @@ import time
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
 from matplotlib import style
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import common
