@@ -35,10 +35,10 @@ class Terrain(object):
         self.recordTime = 0
         self.fps_time = 0
 
-        #model = 'mobilenet_thin_432x368'
-        #w, h = model_wh(model)
-        model = 'cmu'
-        w, h = 656, 368
+        model = 'mobilenet_thin_432x368'
+        w, h = model_wh(model)
+        #model = 'cmu'
+        #w, h = 656, 368
 
         self.lines = {}
         self.connection = [
