@@ -27,14 +27,18 @@ from lifting.draw import plot_pose_adapt
 
 class Terrain(object):
     
-    def __init__(self):        
+    def __init__(self):
+        
         self.times = [0]
         self.stable = [0]
-        self.recordHead = []
+        self.recordNeck = []
+        self.recordTime = 0
         self.fps_time = 0
 
-        model = 'mobilenet_thin_432x368'
-        w, h = model_wh(model)
+        #model = 'mobilenet_thin_432x368'
+        #w, h = model_wh(model)
+        model = 'cmu'
+        w, h = 656, 368
 
         self.lines = {}
         self.connection = [
@@ -156,20 +160,21 @@ class Terrain(object):
         #                                [1,12], #neck LKne e
         #                                [1,13]]  #neck LAnkle
         
-        if int(time.time())%2==0: #every 1 second record
+        if time.time() - self.recordTime >= 0.3: #every 1 second record
             self.times = self.times + [self.times[-1]+1]
+            self.recordTime = time.time()
             if len(self.stable)>1000:
                 self.stable = self.stable[200:]
-                self.recordHead = self.recordHead[200:]
+                self.recordNeck = self.recordNeck[200:]
             if self.stable == [0]:
                 self.stable = self.stable + [0]
-                self.recordHead = [pose_3dqt[10][2]] + [pose_3dqt[10][2]]
+                self.recordNeck = [pose_3dqt[9][2]] + [pose_3dqt[9][2]]
             else:
-                #highest 800  , 550-600 average
-                self.stable = self.stable + [abs(pose_3dqt[10][2] - self.recordHead[-1])]
-                self.recordHead = self.recordHead + [pose_3dqt[10][2]]
+                #550-600 average
+                self.stable = self.stable + [abs(pose_3dqt[9][2] - self.recordHead[-1])]
+                self.recordNeck = self.recordNeck + [pose_3dqt[9][2]]
             
-            
+        
         status_found = 0
         for id_part in detected_part:
             #if id_part in [8,9,10,11,12,13] and 1 in detected_part:
