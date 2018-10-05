@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import processImage
 from processImage import Terrain
+import os
+
 #app = Flask(__name__)
 
 #@app.route('/')
@@ -41,6 +43,7 @@ def processImage():
     except:
         print("Image not clear")
 if __name__ == "__main__":
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
