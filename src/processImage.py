@@ -261,7 +261,7 @@ class Terrain(object):
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             print('times - times : ',self.times[-1] - self.saveTimes)
-            if self.times[-1] - self.saveTimes) >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            if self.times[-1] - self.saveTimes >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
