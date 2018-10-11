@@ -9,7 +9,7 @@ from networks import get_graph_path, model_wh
 from matplotlib import style
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
-
+import common
 
 class Terrain(object):
 
@@ -17,6 +17,7 @@ class Terrain(object):
         """
         Initialize the graphics window and mesh surface
         """
+        self.bitFalling = 0
         # Initialize plot.
         self.times = []
         self.recordNeck = []
@@ -31,6 +32,7 @@ class Terrain(object):
         self.highestHIP = 0
         self.saveTimes = -1
 
+
         self.recordTimeHIPHighest = 0
         self.surpriseMovingTime = -1
         self.detectedHIP_Y = 0
@@ -43,10 +45,6 @@ class Terrain(object):
         w, h = 432, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
-        try:
-            self.mesh(image)
-        except Exception as e:
-            print(e)
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[200:]
         self.recordHIP = self.recordHIP[200:]
@@ -151,11 +149,11 @@ class Terrain(object):
     def getLastTimes(self):
         return self.times[-1]
     def mesh(self, image):
-        self.image = common.read_imgfile(image,None,None)
+        image = common.read_imgfile(image,None,None)
         image_h, image_w = image.shape[:2]
         width = 300
         height = 300
-
+        self.resetBitFalling()
         humans = self.e.inference(image, scales=[None])
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
@@ -269,9 +267,16 @@ class Terrain(object):
                 print('---------------------------------------')
                 self.resetSurpriseMovingTime()
             elif self.globalTime - self.surpriseMovingTime >= 10:
-                self.foundFalling()
+                self.setFalling()
                 self.resetSurpriseMovingTime()
         print('end processing falling end mash()')
+
+    def setFalling(self):
+        self.bitFalling = 1
+    def getBitFalling(self):
+        return self.bitFalling
+    def resetBitFalling(self):
+        self.bitFalling = 0
 if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')

@@ -18,6 +18,7 @@ class Terrain(object):
         Initialize the graphics window and mesh surface
         """
         # Initialize plot.
+        self.bitFalling = 0
         plt.ion()
         # f = plt.figure(figsize=(5, 5))
         f2 = plt.figure(figsize=(6, 5))
@@ -47,10 +48,10 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        # model = 'mobilenet_thin_432x368'
-        # w, h = model_wh(model)
-        model = 'cmu'
-        w, h = 432, 368
+        model = 'mobilenet_thin_432x368'
+        w, h = model_wh(model)
+        #model = 'cmu'
+        #w, h = 432, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
         self.cam = cv2.VideoCapture(camera)
@@ -139,7 +140,7 @@ class Terrain(object):
             print(rate)
 
         print('extraDis : ',self.extraDistance)
-        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(2/4)
+        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
         print('set complete ')
     def countdownFalling(self):
         print('----------------------------------------')
@@ -163,11 +164,11 @@ class Terrain(object):
     def getLastTimes(self):
         return self.times[-1]
     def mesh(self, image):
-        
+
         image_h, image_w = image.shape[:2]
         width = 300
         height = 300
-
+        self.resetBitFalling()
         humans = self.e.inference(image, scales=[None])
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
@@ -282,15 +283,22 @@ class Terrain(object):
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             print('times - times : ',self.times[-1] - self.saveTimes)
-            if self.times[-1] - self.saveTimes) >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            if self.times[-1] - self.saveTimes >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
                 self.resetSurpriseMovingTime()
             elif self.globalTime - self.surpriseMovingTime >= 10:
-                self.foundFalling()
+                self.setFalling()
                 self.resetSurpriseMovingTime()
         print('end processing falling end mash()')
+
+    def setFalling(self):
+        self.bitFalling = 1
+    def getBitFalling(self):
+        return self.bitFalling
+    def resetBitFalling(self):
+        self.bitFalling = 0
     def update(self):
         """
         update the mesh and shift the noise each time

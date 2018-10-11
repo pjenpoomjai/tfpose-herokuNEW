@@ -32,13 +32,13 @@ def run():
     client.loop_forever()
 def processImage():
     nameImage = './images/tet.jpg'
-    print('begin mesh function.')
+    print('--------------------begin mesh function.-----------------')
     try:
         t.mesh(nameImage)
+        FALL_DETECTED = t.getBitFalling()
         print('Complete All')
         if FALL_DETECTED: #when found falling  turn FALL to True
             client.publish("zenbo/messageFALL", 'FALL DETECTED')
-            FALL_DETECTED = False
     except Exception as e:
         print(e)
         print("Image not clear")
@@ -47,5 +47,4 @@ if __name__ == "__main__":
     t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
-    FALL_DETECTED = True
     run()
