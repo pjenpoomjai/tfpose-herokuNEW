@@ -286,7 +286,6 @@ class TfPoseEstimator:
         # npimg_q += 0.5
         npimg_q = npimg_q.astype(np.uint8)
         return npimg_q
-
     @staticmethod
     def draw_humans(npimg, humans, imgcopy=False):
         if imgcopy:
@@ -314,15 +313,12 @@ class TfPoseEstimator:
                 npimg = cv2.line(npimg, centers[pair[0]], centers[pair[1]], common.CocoColors[pair_order], 3)
         #adap to our project Taiwan
         #------
-        
-        package = [npimg , status_part_body_appear]
+        package = [npimg , status_part_body_appear , centers]
         return package
         #------ original return 
         #return npimg
         #-----
-
         return npimg
-
     def _get_scaled_img(self, npimg, scale):
         get_base_scale = lambda s, w, h: max(self.target_size[0] / float(w), self.target_size[1] / float(h)) * s
         img_h, img_w = npimg.shape[:2]

@@ -105,7 +105,8 @@ class Terrain(object):
 
         humans = self.e.inference(image, scales=[None])
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
-
+        #print length between HIP , Neck
+        length_part = package[2]
         image = package[0]
         status_part_body_appear = package[1]
         print(status_part_body_appear)
@@ -187,6 +188,7 @@ class Terrain(object):
             if status_part_body_appear[id_part] == 1:
                 print("%-10s" % name_part_body[id_part], ": appear")
                 detected_part.append(id_part)
+
             else:
                 print("%-10s" % name_part_body[id_part], ": disappear")
         # list_to_check_fall_deteced = [[1,8]  , #neck,RHIP
@@ -195,12 +197,15 @@ class Terrain(object):
         #                                [1,11], #neck LHip
         #                                [1,12], #neck LKne e
         #                                [1,13]]  #neck LAnkle
-
+        if 1 in detected_part and 11 in detected_part:
+            bX = ((length_part[11][0] - length_part[1][0]) **2)
+            bY = ((length_part[11][1]  - length_part[1][1])**2)
+            print('length HIP , NECK : ',abs(bX + bY) ** (1/2))
         if time.time() - self.recordTime >= 0.3:  # every 0.3 second record
             print(time.time() - self.recordTime)
             self.times = self.times + [self.times[-1]+1]
             self.recordTime = time.time()
-            if len(self.stable) > 1000:
+            if len(self.stable) > 600:
                 self.stable = self.stable[200:]
                 self.recordNeck = self.recordNeck[200:]
             if self.stable == [0]:

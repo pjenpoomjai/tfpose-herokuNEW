@@ -12,7 +12,7 @@ import os
 #@app.route('/')
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
-        
+
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe("zenbo/image")
@@ -35,16 +35,17 @@ def processImage():
     print('begin mesh function.')
     try:
         t.mesh(nameImage)
-        print('Show 3D image')
-        #t.show3DImage()
-        print(t.get_graph_stable())
         print('Complete All')
-        client.publish("zenbo/messageFALL", 'FALL DETECTED')
-    except:
+        if FALL_DETECTED: #when found falling  turn FALL to True
+            client.publish("zenbo/messageFALL", 'FALL DETECTED')
+            FALL_DETECTED = False
+    except Exception as e:
+        print(e)
         print("Image not clear")
 if __name__ == "__main__":
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
+    FALL_DETECTED = True
     run()

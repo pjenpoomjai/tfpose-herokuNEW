@@ -18,6 +18,16 @@ class Terrain(object):
         Initialize the graphics window and mesh surface
         """
         # Initialize plot.
+        plt.ion()
+        # f = plt.figure(figsize=(5, 5))
+        f2 = plt.figure(figsize=(6, 5))
+
+        self.windowNeck = f2.add_subplot(1, 1, 1)
+        self.windowNeck.set_title('Stable')
+        self.windowNeck.set_xlabel('Time')
+        self.windowNeck.set_ylabel('Distant')
+
+        # plt.show()
         self.times = []
         self.recordNeck = []
         self.recordHIP = []
@@ -43,6 +53,8 @@ class Terrain(object):
         w, h = 432, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
+        self.cam = cv2.VideoCapture(camera)
+        ret_val, image = self.cam.read(cv2.IMREAD_COLOR)
         try:
             self.mesh(image)
         except Exception as e:
@@ -151,7 +163,7 @@ class Terrain(object):
     def getLastTimes(self):
         return self.times[-1]
     def mesh(self, image):
-        self.image = common.read_imgfile(image,None,None)
+        
         image_h, image_w = image.shape[:2]
         width = 300
         height = 300
@@ -202,7 +214,14 @@ class Terrain(object):
         #                   "LEar",  # 17
         #                   ]
         # detected_part = []
-
+        print('insert FPS')
+        timeSave = time.time()
+        if timeSave - self.fps_time > 0:
+            self.addFPStoWindow(image,timeSave)
+        print('show image')
+        image = cv2.resize(image, (width, height))
+        cv2.imshow('tf-pose-estimation result', image)
+        self.fps_time = time.time()
         #UPDATE highest y point NECK  every 1
         #print('TIME : ',time.time() - self.recordTimeNeckHighest)
         print('start record everything')
@@ -272,7 +291,39 @@ class Terrain(object):
                 self.foundFalling()
                 self.resetSurpriseMovingTime()
         print('end processing falling end mash()')
+    def update(self):
+        """
+        update the mesh and shift the noise each time
+        """
+        ret_val, image = self.cam.read()
+        try:
+            print('NEWROUND')
+            self.mesh(image)
+            print('--generateGraphStable--')
+            self.generateGraphStable()
+            print('COMPLETE-')
+        except Exception as e:
+            print('ERROR : -> ',e)
+            #print('body not in image')
+    def generateGraphStable(self):
+        plt.cla()
+        self.windowNeck.set_ylim([0, 1500])
+        plt.yticks(range(0, 1501, 100), fontsize=14)
+        plt.xlim(0,600)
+        plt.plot(self.times, self.recordNeck)
+        print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
+        plt.pause(0.01)
+
+    def animation(self):
+        while True:
+            self.update()
+            if cv2.waitKey(1) == ord('q'):
+                self.cam.release()
+                cv2.destroyAllWindows()
+                break
+
 if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')
     t = Terrain()
+    t.animation()
