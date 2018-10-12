@@ -33,6 +33,7 @@ def run():
 def processImage():
     nameImage = './images/tet.jpg'
     print('--------------------begin mesh function.-----------------')
+    print('time : ',time.time())
     try:
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()

@@ -143,7 +143,6 @@ class Terrain(object):
         print('----------------------------------------')
         print('+++++FALL_DETECTED+++++++')
         print('----------------------------------------')
-        time.sleep(10)
     def getLastNeck(self):
         return self.recordNeck[-1]
     def getLastTimes(self):
@@ -155,7 +154,7 @@ class Terrain(object):
         height = 300
         self.resetBitFalling()
         humans = self.e.inference(image, scales=[None])
-        package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
+        package = TfPoseEstimator.draw_humans_adpt(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         #camera not found NECK more than 10 second then reset list
         if self.globalTime - self.getLastRecordTime() >= 12:
@@ -163,7 +162,7 @@ class Terrain(object):
             self.destroyAllRecord()
 
         image = package[0]
-        status_part_body_appear = package[1]
+        #status_part_body_appear = package[1]
         center_each_body_part = package[2]
         print('end Initialize mesh')
         #find length of neck , R_SHOULDER
