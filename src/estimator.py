@@ -323,7 +323,7 @@ class TfPoseEstimator:
         if imgcopy:
             npimg = np.copy(npimg)
         image_h, image_w = npimg.shape[:2]
-        status_part_body_appear = [0]*18
+        status_part_body_appear = [0]
         centers = {}
         for human in humans:
             # draw point
@@ -334,13 +334,8 @@ class TfPoseEstimator:
                 body_part = human.body_parts[i]
                 center = (int(body_part.x * image_w + 0.5), int(body_part.y * image_h + 0.5))
                 centers[i] = center
-        #adap to our project Taiwan
-        #------
         package = [npimg , status_part_body_appear , centers]
         return package
-        #------ original return
-        #return npimg
-        #-----
     def _get_scaled_img(self, npimg, scale):
         get_base_scale = lambda s, w, h: max(self.target_size[0] / float(w), self.target_size[1] / float(h)) * s
         img_h, img_w = npimg.shape[:2]
