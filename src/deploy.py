@@ -32,8 +32,9 @@ def run():
     client.loop_forever()
 def processImage():
     nameImage = './images/tet.jpg'
-    print('--------------------begin mesh function.-----------------')
+    print('--------------------begin mesh function.--------------',round)
     print('time : ',time.time())
+    round = round+1
     try:
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
@@ -48,4 +49,5 @@ if __name__ == "__main__":
     t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
+    round = 1
     run()
