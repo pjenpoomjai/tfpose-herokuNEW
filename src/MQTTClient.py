@@ -22,10 +22,10 @@ f = cv2.VideoCapture(camera)
 numberCount = 0
 listNameImage = range(100) #when save a image from camera
 
-# model = 'mobilenet_thin_432x368'
-# w, h = model_wh(model)
-model = 'cmu'
-w, h = 656, 368
+model = 'mobilenet_thin_432x368'
+w, h = model_wh(model)
+#model = 'cmu'
+#w, h = 656, 368
 e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
 
 
@@ -36,8 +36,9 @@ while True:
 
     cv2.imshow('came',img)
 
-
+    print('start-inderence',time.time())
     humans = e.inference(img, scales=[None])
+    print('end-inderence',time.time())
     package = TfPoseEstimator.draw_humans(img, humans, imgcopy=False)
     img = package[0]
 

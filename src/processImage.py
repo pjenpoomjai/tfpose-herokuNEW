@@ -39,10 +39,10 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        # model = 'mobilenet_thin_432x368'
-        # w, h = model_wh(model)
-        model = 'cmu'
-        w, h = 432, 368
+        model = 'mobilenet_thin_432x368'
+        w, h = model_wh(model)
+        #model = 'cmu'
+        #w, h = 432, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
     def reduceRecord(self) :
@@ -153,7 +153,9 @@ class Terrain(object):
         width = 300
         height = 300
         self.resetBitFalling()
+        print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
+        print('end-inderence',time.time())
         package = TfPoseEstimator.draw_humans_adpt(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         #camera not found NECK more than 10 second then reset list

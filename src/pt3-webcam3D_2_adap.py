@@ -169,7 +169,9 @@ class Terrain(object):
         width = 300
         height = 300
         self.resetBitFalling()
+        print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
+        print('end-inderence',time.time())
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         #camera not found NECK more than 10 second then reset list

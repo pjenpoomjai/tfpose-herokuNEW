@@ -32,9 +32,10 @@ def run():
     client.loop_forever()
 def processImage():
     nameImage = './images/tet.jpg'
+    global round
     print('--------------------begin mesh function.--------------',round)
     print('time : ',time.time())
-    round = round+1
+    round = round + 1
     try:
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
