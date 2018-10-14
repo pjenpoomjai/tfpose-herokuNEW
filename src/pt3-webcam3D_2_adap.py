@@ -3,7 +3,7 @@ import sys
 import cv2
 import time
 #import os
-
+import paho.mqtt.client as mqtt
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
 from matplotlib import style
@@ -292,6 +292,8 @@ class Terrain(object):
                 self.resetSurpriseMovingTime()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
+                print("Publishing message to topic", "zenbo/image")
+                client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.resetSurpriseMovingTime()
         print('end processing falling end mash()')
 
@@ -336,4 +338,10 @@ if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')
     t = Terrain()
+    broker_address = "iot.eclipse.org"
+    print("creating new instance")
+    client = mqtt.Client("comProcess")  # create new instance
+    # client.on_message = on_message  # attach function to callback
+    print("connecting to broker")
+    client.connect(broker_address)  # connect to broker
     t.animation()
