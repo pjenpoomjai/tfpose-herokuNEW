@@ -2,10 +2,6 @@ import paho.mqtt.client as mqtt  # import the client1
 import time
 ############
 import cv2
-
-from estimator import TfPoseEstimator
-from networks import get_graph_path, model_wh
-
 broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("client1")  # create new instance
@@ -21,28 +17,13 @@ recordTime =0
 f = cv2.VideoCapture(camera)
 numberCount = 0
 listNameImage = range(100) #when save a image from camera
-
-model = 'mobilenet_thin_432x368'
-w, h = model_wh(model)
-#model = 'cmu'
-#w, h = 656, 368
-e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
-
-
+round = 1
 while True:
     ret_int,img = f.read()
     #picName = time.asctime( time.localtime(time.time())).replace(':','_')
     #picName = picName.replace(' ','_') +".jpg"
 
     cv2.imshow('came',img)
-
-    print('start-inderence',time.time())
-    humans = e.inference(img, scales=[None])
-    print('end-inderence',time.time())
-    package = TfPoseEstimator.draw_humans(img, humans, imgcopy=False)
-    img = package[0]
-
-
     #if recordTime!=int(time.time()):    3 picture / sec
     if time.time() - recordTime > 0.3:
         pathName = './images/'
@@ -51,7 +32,7 @@ while True:
         if numberCount >= len(listNameImage):
             numberCount = 0
         print(picName)
-        cv2.imwrite(picName, img)
+        cv2.imwrite('./images/'+picName, img)
         recordTime = time.time()
         fileImage = open(picName,'rb')
         fileImage = fileImage.read()
@@ -61,8 +42,8 @@ while True:
         client.publish(topic="zenbo/image", payload= byteArr ,qos=0)
         #ledStatus 3 open light 2close light ,FLUKE
         #client.publish(topic="ledStatus", payload= '2' ,qos=0)
-        print('Complete')
-
+        print('Complete : ',round)
+        round = round + 1
     if cv2.waitKey(1)==ord('q'):
         f.release()
         cv2.destroyAllWindows()
