@@ -292,7 +292,7 @@ class Terrain(object):
                 self.resetSurpriseMovingTime()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
-                print("Publishing message to topic", "zenbo/image")
+                print("Publishing message to topic", "zenbo/messageFALL")
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.resetSurpriseMovingTime()
         print('end processing falling end mash()')
