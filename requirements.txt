@@ -112,3 +112,4 @@ Werkzeug==0.14.1
 wget==3.2
 whitenoise==4.1
 widgetsnbextension==3.4.2
+imutils
