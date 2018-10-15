@@ -51,7 +51,7 @@ class Terrain(object):
         model = 'mobilenet_thin_432x368'
         w, h = model_wh(model)
         #model = 'cmu'
-        #w, h = 432, 368
+        #w, h = 656, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
         self.cam = cv2.VideoCapture(camera)
