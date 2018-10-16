@@ -12,17 +12,15 @@ client.connect(broker_address)  # connect to broker
 #print("Publishing message to topic", "if/test")
 message = 'end'
 
-camera = 0
+# camera = 0
 recordTime =0
 f = cv2.VideoCapture(camera)
 numberCount = 0
 listNameImage = range(100) #when save a image from camera
 round = 1
+# client.publish(topic="nonine", payload= "FALL" ,qos=0)
 while True:
     ret_int,img = f.read()
-    #picName = time.asctime( time.localtime(time.time())).replace(':','_')
-    #picName = picName.replace(' ','_') +".jpg"
-
     cv2.imshow('came',img)
     #if recordTime!=int(time.time()):    3 picture / sec
     if time.time() - recordTime > 0.3:
@@ -40,8 +38,6 @@ while True:
         print(time.time())
         print("Publishing message to topic", "zenbo/image")
         client.publish(topic="zenbo/image", payload= byteArr ,qos=0)
-        #ledStatus 3 open light 2close light ,FLUKE
-        #client.publish(topic="ledStatus", payload= '2' ,qos=0)
         print('Complete : ',round)
         round = round + 1
     if cv2.waitKey(1)==ord('q'):

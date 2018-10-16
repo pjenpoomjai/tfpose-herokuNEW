@@ -149,7 +149,6 @@ class Terrain(object):
         return self.times[-1]
     def mesh(self, image):
         image = common.read_imgfile(image,None,None)
-        image_h, image_w = image.shape[:2]
         width = 300
         height = 300
         self.resetBitFalling()
