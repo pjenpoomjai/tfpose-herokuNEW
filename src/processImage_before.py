@@ -3,14 +3,13 @@ import sys
 import cv2
 import time
 #import os
-import paho.mqtt.client as mqtt
+
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
 from matplotlib import style
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
-import imutils
-
+import common
 
 class Terrain(object):
 
@@ -18,18 +17,8 @@ class Terrain(object):
         """
         Initialize the graphics window and mesh surface
         """
-        # Initialize plot.
         self.bitFalling = 0
-        plt.ion()
-        # f = plt.figure(figsize=(5, 5))
-        f2 = plt.figure(figsize=(6, 5))
-
-        self.windowNeck = f2.add_subplot(1, 1, 1)
-        self.windowNeck.set_title('Stable')
-        self.windowNeck.set_xlabel('Time')
-        self.windowNeck.set_ylabel('Distant')
-
-        # plt.show()
+        # Initialize plot.
         self.times = []
         self.recordNeck = []
         self.recordHIP = []
@@ -48,7 +37,7 @@ class Terrain(object):
         self.detectedHIP_Y = 0
         self.detectedNECK_Y = 0
         self.extraDistance = 0
-        #add more than adapt
+
         self.fgbg = cv2.createBackgroundSubtractorMOG2(history=0,varThreshold=16,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
@@ -60,15 +49,9 @@ class Terrain(object):
         model = 'mobilenet_thin_432x368'
         w, h = model_wh(model)
         #model = 'cmu'
-        #w, h = 656, 368
+        #w, h = 432, 368
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
-        self.cam = cv2.VideoCapture(camera)
-        ret_val, image = self.cam.read(cv2.IMREAD_COLOR)
-        try:
-            self.mesh(image)
-        except Exception as e:
-            print(e)
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[200:]
         self.recordHIP = self.recordHIP[200:]
@@ -115,12 +98,12 @@ class Terrain(object):
         self.recordNeck_Rshoulder = []
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
-    def addFPStoWindow(self,window,timeSave):
-        cv2.putText(window,
-                    "FPS: %f [press 'q'to quit]" % (
-                        1.0 / (timeSave - self.fps_time)),
-                    (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
-                    (0, 255, 0), 2)
+    # def addFPStoWindow(self,window,timeSave):
+    #     cv2.putText(window,
+    #                 "FPS: %f [press 'q'to quit]" % (
+    #                     1.0 / (timeSave - self.fps_time)),
+    #                 (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
+    #                 (0, 255, 0), 2)
     def detecedFirstFalling(self):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
@@ -151,7 +134,7 @@ class Terrain(object):
             print(rate)
 
         print('extraDis : ',self.extraDistance)
-        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
+        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(2/4)
         print('set complete ')
     def countdownFalling(self):
         print('----------------------------------------')
@@ -169,7 +152,6 @@ class Terrain(object):
         print('----------------------------------------')
         print('+++++FALL_DETECTED+++++++')
         print('----------------------------------------')
-        time.sleep(10)
     def getLastNeck(self):
         return self.recordNeck[-1]
     def getLastTimes(self):
@@ -212,30 +194,22 @@ class Terrain(object):
                 y_right = y+h
             # cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
         if (x_left==0 and y_left==0 and x_right==self.width and y_right==self.height)==False:
-            cv2.rectangle(image, (x_left, y_left), (x_right, y_right), (0, 255, 0), 2)
+            # cv2.rectangle(image, (x_left, y_left), (x_right, y_right), (0, 255, 0), 2)
             if self.human_in_frame:
                 self.secondNeck = y_left+10
-        cv2.imshow('na',fgmask)
+        # cv2.imshow('na',fgmask)
     def mesh(self, image):
-        image = cv2.resize(image, (self.width, self.height))
+        image = common.read_imgfile(image,None,None)
         self.resetBitFalling()
         self.savesecondNeck(image)
         print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         print('end-inderence',time.time())
-        package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
+        package = TfPoseEstimator.draw_humans_adpt(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         image = package[0]
-        status_part_body_appear = package[1]
+        #status_part_body_appear = package[1]
         center_each_body_part = package[2]
-
-        # print('insert FPS')
-        # timeSave = time.time()
-        # if timeSave - self.fps_time > 0:
-        #     self.addFPStoWindow(image,timeSave)
-        print('show image')
-        cv2.imshow('tf-pose-estimation result', image)
-        # self.fps_time = time.time()
         #camera not found NECK more than 10 second then reset list
         if self.globalTime - self.getLastRecordTime() >= 12:
             print('RESET STABLE,RECORDNECK,HIP,etc. [complete 12 second]')
@@ -278,12 +252,12 @@ class Terrain(object):
         #                   "LEar",  # 17
         #                   ]
         # detected_part = []
+
         #UPDATE highest y point NECK  every 1
         #print('TIME : ',time.time() - self.recordTimeNeckHighest)
         print('start record everything')
         if 1 in center_each_body_part and (11 in center_each_body_part or 8 in center_each_body_part):
             self.setScaleFalling()
-        #mean not found neck in this frame
         if self.globalTime - self.getLastRecordTime() >= 0.25 :  # every 0.3 second record
             if 1 in center_each_body_part:
                 print(self.globalTime - self.getLastRecordTime())
@@ -357,8 +331,6 @@ class Terrain(object):
                 self.resetSurpriseMovingTime()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
-                print("Publishing message to topic", "zenbo/messageFALL")
-                client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.resetSurpriseMovingTime()
                 self.destroyAll()
         print('end processing falling end mash()')
@@ -369,45 +341,7 @@ class Terrain(object):
         return self.bitFalling
     def resetBitFalling(self):
         self.bitFalling = 0
-    def update(self):
-        """
-        update the mesh and shift the noise each time
-        """
-        ret_val, image = self.cam.read()
-        try:
-            print('NEWROUND')
-            self.mesh(image)
-            print('--generateGraphStable--')
-            self.generateGraphStable()
-            print('COMPLETE-')
-        except Exception as e:
-            print('ERROR : -> ',e)
-            #print('body not in image')
-    def generateGraphStable(self):
-        plt.cla()
-        self.windowNeck.set_ylim([0, 1500])
-        plt.yticks(range(0, 1501, 100), fontsize=14)
-        plt.xlim(0,600)
-        plt.plot(self.times, self.recordNeck)
-        print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
-        plt.pause(0.01)
-
-    def animation(self):
-        while True:
-            self.update()
-            if cv2.waitKey(1) == ord('q'):
-                self.cam.release()
-                cv2.destroyAllWindows()
-                break
-
 if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')
     t = Terrain()
-    broker_address = "iot.eclipse.org"
-    print("creating new instance")
-    client = mqtt.Client("comProcess")  # create new instance
-    # client.on_message = on_message  # attach function to callback
-    print("connecting to broker")
-    client.connect(broker_address)  # connect to broker
-    t.animation()
