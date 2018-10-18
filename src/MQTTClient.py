@@ -12,7 +12,7 @@ client.connect(broker_address)  # connect to broker
 #print("Publishing message to topic", "if/test")
 message = 'end'
 
-# camera = 0
+camera = 0
 recordTime =0
 f = cv2.VideoCapture(camera)
 numberCount = 0
@@ -30,7 +30,7 @@ while True:
         if numberCount >= len(listNameImage):
             numberCount = 0
         print(picName)
-        cv2.imwrite('./images/'+picName, img)
+        cv2.imwrite(picName, img)
         recordTime = time.time()
         fileImage = open(picName,'rb')
         fileImage = fileImage.read()
