@@ -130,7 +130,7 @@ class Terrain(object):
         #print(min(self.recordNeck_Rshoulder[-7:-2]))
         #print(self.recordNeck_Rshoulder[-1])
 
-        
+
         # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
         # if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
             #print('ENTER CAMERA')
@@ -142,8 +142,9 @@ class Terrain(object):
             # self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
             #print(rate)
 
-        #print('extraDis : ',self.extraDistance)
+
         self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
+        #print('extraDis : ',self.extraDistance)
         #print('set complete ')
     def countdownFalling(self):
         print('----------------------------------------')
