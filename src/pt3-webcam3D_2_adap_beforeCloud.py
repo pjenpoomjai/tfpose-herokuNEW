@@ -349,17 +349,16 @@ class Terrain(object):
 
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
-            print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.times[-1] - self.saveTimesStartFalling >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
-                self.resetSurpriseMovingTime()
+                self.destroyAll()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
                 print("Publishing message to topic", "zenbo/messageFALL")
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
-                self.resetSurpriseMovingTime()
                 self.destroyAll()
         print('end processing falling end mash()')
 

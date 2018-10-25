@@ -42,7 +42,7 @@ def processImage():
         FALL_DETECTED = t.getBitFalling()
         print('Complete All')
         if FALL_DETECTED: #when found falling  turn FALL to True
-            client.publish("zenbo/messageFALL", 'FALL DETECTED')
+            client.publish("FALL_DETECT", 'FALL')
     except Exception as e:
         print(e)
         print("Image not clear")

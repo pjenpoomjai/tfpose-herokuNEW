@@ -50,7 +50,6 @@ class Terrain(object):
         w, h = model_wh(model)
         #model = 'cmu'
         #w, h = 432, 368
-        camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[200:]
@@ -120,21 +119,21 @@ class Terrain(object):
         self.saveTimesStartFalling = self.times[-1]
         #low value then far from camera
         print('set extraDistance')
-        print(min(self.recordNeck_Rshoulder[-7:-2]))
-        print(self.recordNeck_Rshoulder[-1])
-        minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
-        if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
-            print('ENTER CAMERA')
-            self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
-
-        else:
-            print('OUT CAMERA')
-            rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
-            self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
-            print(rate)
+        # print(min(self.recordNeck_Rshoulder[-7:-2]))
+        # print(self.recordNeck_Rshoulder[-1])
+        # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
+        # if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
+        #     print('ENTER CAMERA')
+        #     self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
+        #
+        # else:
+        #     print('OUT CAMERA')
+        #     rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
+        #     self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
+        #     print(rate)
 
         print('extraDis : ',self.extraDistance)
-        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(2/4)
+        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
         print('set complete ')
     def countdownFalling(self):
         print('----------------------------------------')
@@ -323,15 +322,14 @@ class Terrain(object):
 
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
-            print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.times[-1] - self.saveTimesStartFalling >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
-                self.resetSurpriseMovingTime()
+                self.destroyAll()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
-                self.resetSurpriseMovingTime()
                 self.destroyAll()
         print('end processing falling end mash()')
 
