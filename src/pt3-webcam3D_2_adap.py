@@ -129,15 +129,17 @@ class Terrain(object):
         #print('set extraDistance')
         #print(min(self.recordNeck_Rshoulder[-7:-2]))
         #print(self.recordNeck_Rshoulder[-1])
-        minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
-        if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
-            #print('ENTER CAMERA')
-            self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
 
-        else:
+        
+        # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
+        # if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
+            #print('ENTER CAMERA')
+            # self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
+
+        # else:
             #print('OUT CAMERA')
-            rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
-            self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
+            # rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
+            # self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
             #print(rate)
 
         #print('extraDis : ',self.extraDistance)
