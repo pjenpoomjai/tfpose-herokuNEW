@@ -10,6 +10,7 @@ from matplotlib import style
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import common
+import imutils
 
 class Terrain(object):
 
