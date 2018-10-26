@@ -39,7 +39,7 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=0,varThreshold=16,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=25,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
@@ -324,7 +324,7 @@ class Terrain(object):
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y-self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')

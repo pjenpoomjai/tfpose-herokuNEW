@@ -49,7 +49,7 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
         #add more than adapt
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=0,varThreshold=16,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=25,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
@@ -68,7 +68,8 @@ class Terrain(object):
         try:
             self.mesh(image)
         except Exception as e:
-            print(e)
+            pass
+            # print(e)
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[200:]
         self.recordHIP = self.recordHIP[200:]
@@ -126,17 +127,17 @@ class Terrain(object):
         self.detectedHIP_Y  = self.highestHIP
         print('-------------------------------!!!!falling!!!!!!-----------------')
         print('-------------------------------!!!!falling!!!!!!-----------------')
-        print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling))
+        # print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling))
 
-        print('HIGHEST NECK',self.highestNeck)
-        print('current NECK',self.getLastNeck())
-        print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
-        print('-------------------------------!!!!falling!!!!!!-----------------')
-        print('-------------------------------!!!!falling!!!!!!-----------------')
+        # print('HIGHEST NECK',self.highestNeck)
+        # print('current NECK',self.getLastNeck())
+        # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
+        # print('-------------------------------!!!!falling!!!!!!-----------------')
+        # print('-------------------------------!!!!falling!!!!!!-----------------')
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
         #low value then far from camera
-        print('set extraDistance')
+        # print('set extraDistance')
         # print(min(self.recordNeck_Rshoulder[-7:-2]))
         # print(self.recordNeck_Rshoulder[-1])
         # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
@@ -151,18 +152,18 @@ class Terrain(object):
         #     print(rate)
         #
         self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
-        print('extraDis : ',self.extraDistance)
-        print('set complete ')
+        # print('extraDis : ',self.extraDistance)
+        # print('set complete ')
     def countdownFalling(self):
-        print('----------------------------------------')
-        print('StartTime From: ',self.surpriseMovingTime)
+        # print('----------------------------------------')
+        # print('StartTime From: ',self.surpriseMovingTime)
         print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
-        print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
-        print('current your NECK : ',self.getLastNeck())
-        print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
+        # print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
+        # print('current your NECK : ',self.getLastNeck())
+        # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
         print('----------------------------------------')
         #maybe not Falling but make sure with NECK last must move up to this position
-        print('check STATE 2')
+        # print('check STATE 2')
     def resetSurpriseMovingTime(self):
         self.surpriseMovingTime=-1
     def foundFalling(self):
@@ -220,9 +221,9 @@ class Terrain(object):
         image = cv2.resize(image, (self.width, self.height))
         self.resetBitFalling()
         self.savesecondNeck(image)
-        print('start-inderence',time.time())
+        # print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
-        print('end-inderence',time.time())
+        # print('end-inderence',time.time())
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         image = package[0]
@@ -233,17 +234,17 @@ class Terrain(object):
         # timeSave = time.time()
         # if timeSave - self.fps_time > 0:
         #     self.addFPStoWindow(image,timeSave)
-        print('show image')
+        # print('show image')
         cv2.imshow('tf-pose-estimation result', image)
         # self.fps_time = time.time()
         #camera not found NECK more than 10 second then reset list
         if self.globalTime - self.getLastRecordTime() >= 12:
-            print('RESET STABLE,RECORDNECK,HIP,etc. [complete 12 second]')
+            # print('RESET STABLE,RECORDNECK,HIP,etc. [complete 12 second]')
             self.destroyAll()
         if self.globalTime - self.getLastRecordTime() >= 2:
-            print('maybe NECK or HUMAN not found [complete 1.5 second]')
+            # print('maybe NECK or HUMAN not found [complete 1.5 second]')
             self.human_in_frame=False
-        print('end Initialize mesh')
+        # print('end Initialize mesh')
         #find length of neck , R_SHOULDER
         if 2 in center_each_body_part and 1 in center_each_body_part:
             p1 = center_each_body_part[2]
@@ -280,13 +281,13 @@ class Terrain(object):
         # detected_part = []
         #UPDATE highest y point NECK  every 1
         #print('TIME : ',time.time() - self.recordTimeNeckHighest)
-        print('start record everything')
+        # print('start record everything')
         if 1 in center_each_body_part and (11 in center_each_body_part or 8 in center_each_body_part):
             self.setScaleFalling()
         #mean not found neck in this frame
         if self.globalTime - self.getLastRecordTime() >= 0.25 :  # every 0.3 second record
             if 1 in center_each_body_part:
-                print(self.globalTime - self.getLastRecordTime())
+                # print(self.globalTime - self.getLastRecordTime())
                 self.addCountTimes()
                 self.addRecordTime(self.globalTime)
                 self.human_in_frame = True
@@ -298,23 +299,23 @@ class Terrain(object):
                 elif 8 in center_each_body_part:
                     self.addRecordHIP(center_each_body_part[8][1])
             elif self.getLastTimesFoundNeck()==self.getLastTimes() and self.used_quotaVirtureNeck<=self.quotaVirtureNeck:
-                print(self.globalTime - self.getLastRecordTime())
+                # print(self.globalTime - self.getLastRecordTime())
                 self.addCountTimes()
                 self.addRecordTime(self.globalTime)
                 self.lastTimesFoundNeck =self.getLastTimes()
                 self.addRecordNeck(self.getSecondNeck())
-                print('addSecond Neck')
+                # print('addSecond Neck')
                 self.used_quotaVirtureNeck+=1
             if len(self.recordNeck) > 600:
                 self.reduceRecord()
-        print('find highest neck , hip')
+        # print('find highest neck , hip')
         if len(self.recordNeck)>1:
             if (self.getLastNeck() < self.highestNeck) or (self.globalTime - self.recordTimeNeckHighest >= 0.25):
                 self.recordTimeNeckHighest = self.globalTime
                 #found last 6  min value
 
                 index = self.indexLastNumberMinValueList(self.recordNeck,6)
-                print('find index')
+                # print('find index')
                 self.highestNeck = self.recordNeck[index] #more HIGH more low value
                 if len(self.recordHIP)>1:
                     if 11 in center_each_body_part:
@@ -335,22 +336,22 @@ class Terrain(object):
                             self.highestHIP = min(self.recordHIP[-6:])
                             self.recordTimeHIPHighest = self.globalTime
         # found NECK
-        print('processing falling ---------')
+        # print('processing falling ---------')
         # print('NECK : -',self.recordNeck)
         # print('HIP : -',self.recordHIP)
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
-            print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling),'HIP,NECK',self.highestHIP,self.highestNeck)
-            print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
-            print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
+            # print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling),'HIP,NECK',self.highestHIP,self.highestNeck)
+            # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
+            # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() - self.highestNeck )> abs(self.scaleFalling):
                 self.detecedFirstFalling()
 
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= self.detectedNECK_Y or self.getLastNeck() <= (self.detectedHIP_Y+self.extraDistance)):
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y-self.extraDistance)):
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
@@ -360,7 +361,7 @@ class Terrain(object):
                 print("Publishing message to topic", "zenbo/messageFALL")
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.destroyAll()
-        print('end processing falling end mash()')
+        # print('end processing falling end mash()')
 
     def setFalling(self):
         self.bitFalling = 1
@@ -374,13 +375,14 @@ class Terrain(object):
         """
         ret_val, image = self.cam.read()
         try:
-            print('NEWROUND')
+            # print('NEWROUND')
             self.mesh(image)
-            print('--generateGraphStable--')
+            # print('--generateGraphStable--')
             self.generateGraphStable()
-            print('COMPLETE-')
+            # print('COMPLETE-')
         except Exception as e:
-            print('ERROR : -> ',e)
+            pass
+            # print('ERROR : -> ',e)
             #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
@@ -388,7 +390,7 @@ class Terrain(object):
         plt.yticks(range(0, 1501, 100), fontsize=14)
         plt.xlim(0,600)
         plt.plot(self.times, self.recordNeck)
-        print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
+        # print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
         plt.pause(0.01)
 
     def animation(self):
@@ -404,9 +406,9 @@ if __name__ == '__main__':
     style.use('ggplot')
     t = Terrain()
     broker_address = "iot.eclipse.org"
-    print("creating new instance")
+    # print("creating new instance")
     client = mqtt.Client("comProcess")  # create new instance
     # client.on_message = on_message  # attach function to callback
-    print("connecting to broker")
+    # print("connecting to broker")
     client.connect(broker_address)  # connect to broker
     t.animation()
