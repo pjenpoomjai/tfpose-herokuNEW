@@ -25,6 +25,7 @@ def on_message(client, userdata, msg):
     print('received image')
     processImage()
 def run():
+    # broker.mqttdashboard.com
     broker_address = "iot.eclipse.org"
     client.on_connect = on_connect
     client.on_message = on_message  # attach function to callback

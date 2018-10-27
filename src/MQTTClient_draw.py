@@ -5,7 +5,7 @@ import cv2
 
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
-
+# broker.mqttdashboard.com
 broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("client1")  # create new instance

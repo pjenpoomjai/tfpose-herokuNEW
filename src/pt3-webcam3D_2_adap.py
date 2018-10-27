@@ -346,6 +346,7 @@ if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')
     t = Terrain()
+    # broker.mqttdashboard.com
     broker_address = "iot.eclipse.org"
     # print("creating new instance")
     client = mqtt.Client("comProcess")  # create new instance

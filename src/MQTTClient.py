@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt  # import the client1
 import time
 ############
 import cv2
+# broker.mqttdashboard.com
 broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("client1")  # create new instance

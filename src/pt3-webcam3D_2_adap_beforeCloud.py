@@ -358,6 +358,7 @@ class Terrain(object):
                 self.destroyAll()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
+
                 print("Publishing message to topic", "zenbo/messageFALL")
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.destroyAll()
@@ -405,6 +406,7 @@ if __name__ == '__main__':
     # os.chdir('..')
     style.use('ggplot')
     t = Terrain()
+    # broker.mqttdashboard.com
     broker_address = "iot.eclipse.org"
     # print("creating new instance")
     client = mqtt.Client("comProcess")  # create new instance
