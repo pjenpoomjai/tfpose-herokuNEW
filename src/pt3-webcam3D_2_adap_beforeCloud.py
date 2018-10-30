@@ -219,8 +219,6 @@ class Terrain(object):
         cv2.imshow('na',fgmask)
     def mesh(self, image):
         image = cv2.resize(image, (self.width, self.height))
-        self.resetBitFalling()
-        self.savesecondNeck(image)
         # print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         # print('end-inderence',time.time())
@@ -229,13 +227,14 @@ class Terrain(object):
         image = package[0]
         status_part_body_appear = package[1]
         center_each_body_part = package[2]
-
+        self.resetBitFalling()
+        self.savesecondNeck(image)
         # print('insert FPS')
         # timeSave = time.time()
         # if timeSave - self.fps_time > 0:
         #     self.addFPStoWindow(image,timeSave)
         # print('show image')
-        cv2.imshow('tf-pose-estimation result', image)
+        cv2.imshow('tf-pose-estimation result2', image)
         # self.fps_time = time.time()
         #camera not found NECK more than 10 second then reset list
         if self.globalTime - self.getLastRecordTime() >= 12:
@@ -382,8 +381,9 @@ class Terrain(object):
             self.generateGraphStable()
             # print('COMPLETE-')
         except Exception as e:
+            print('ERROR : -> ',e)
             pass
-            # print('ERROR : -> ',e)
+
             #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
