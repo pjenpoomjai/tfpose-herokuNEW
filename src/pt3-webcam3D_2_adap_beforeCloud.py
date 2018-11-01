@@ -4,6 +4,7 @@ import cv2
 import time
 #import os
 import paho.mqtt.client as mqtt
+import numpy as np
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
 from matplotlib import style
@@ -49,7 +50,7 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
         #add more than adapt
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=25,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=300,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
@@ -64,7 +65,10 @@ class Terrain(object):
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
         self.cam = cv2.VideoCapture(camera)
-        ret_val, image = self.cam.read(cv2.IMREAD_COLOR)
+        # self.cam.set(10,255)
+        # self.cam.set(11, 1   ) # contrast       min: 0   , max: 255 , increment:1
+        # self.cam.set(12,17)
+        ret_val, image = self.cam.read(cv2.IMREAD_GRAYSCALE)
         try:
             self.mesh(image)
         except Exception as e:
@@ -219,6 +223,16 @@ class Terrain(object):
         cv2.imshow('na',fgmask)
     def mesh(self, image):
         image = cv2.resize(image, (self.width, self.height))
+        cv2.imshow('normal', image)
+        # RGB = cv2.split(image)
+        # Blue   = RGB[0]
+        # Green = RGB[1]
+        # Red    = RGB[2]
+        # # for i in range(10):
+        # Blue = cv2.equalizeHist(Blue)
+        # Green = cv2.equalizeHist(Green)
+        # Red = cv2.equalizeHist(Red)
+        # image = cv2.merge([Blue,Green, Red])
         # print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         # print('end-inderence',time.time())
