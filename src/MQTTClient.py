@@ -43,7 +43,7 @@ while True:
         fileImage = open(picName,'rb')
         fileImage = fileImage.read()
         byteArr = bytearray(fileImage)
-        byteArr.append(room)
+        byteArr.append(int(args.room))
         print(time.time())
         # print(byteArr)
         # print(bytearray(str(byteArr))==byteArr)

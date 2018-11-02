@@ -21,9 +21,8 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print ("Topic : ", msg.topic)
     # print(data["byteArr"])
-    room = msg.payload.pop([-1])
-    image = msg.payload
-
+    room = msg.payload[-1]
+    image = msg.payload[:-1]
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
     f.write(image)
     f.close()
