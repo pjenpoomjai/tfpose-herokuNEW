@@ -45,7 +45,7 @@ while True:
         print(time.time())
         print("Publishing message to topic", "zenbo/image")
         client.publish(topic="zenbo/image", payload= [byteArr,args.room] ,qos=0)
-        print('Complete : ',round)
+        print(args.room,',Complete : ',round)
         round = round + 1
     if cv2.waitKey(1)==ord('q'):
         f.release()
