@@ -43,12 +43,16 @@ while True:
         fileImage = open(picName,'rb')
         fileImage = fileImage.read()
         byteArr = bytearray(fileImage)
+        byteArr.append(room)
         print(time.time())
+        # print(byteArr)
+        # print(bytearray(str(byteArr))==byteArr)
         print("Publishing message to topic", "zenbo/image")
         data = {"byteArr":str(byteArr),
                 "room":args.room
                 }
         datas = json.dumps(data)
+
         client.publish(topic="zenbo/image", payload= datas ,qos=0)
         print(args.room,',Complete : ',round)
         round = round + 1
