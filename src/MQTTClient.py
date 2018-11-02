@@ -1,8 +1,14 @@
 import paho.mqtt.client as mqtt  # import the client1
 import time
+import argparse
 ############
 import cv2
 # broker.mqttdashboard.com
+
+parser = argparse.ArgumentParser(description='Sent Image to cloud')
+parser.add_argument('--room', default='1', help='number room')
+args = parser.parse_args()
+
 broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client("client1")  # create new instance
@@ -38,7 +44,7 @@ while True:
         byteArr = bytearray(fileImage)
         print(time.time())
         print("Publishing message to topic", "zenbo/image")
-        client.publish(topic="zenbo/image", payload= byteArr ,qos=0)
+        client.publish(topic="zenbo/image", payload= [byteArr,args.room] ,qos=0)
         print('Complete : ',round)
         round = round + 1
     if cv2.waitKey(1)==ord('q'):

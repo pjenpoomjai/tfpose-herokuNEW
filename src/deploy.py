@@ -20,10 +20,12 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print ("Topic : ", msg.topic)
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
-    f.write(msg.payload)
+    image = msg.payload[0]
+    room = msg.payload[1]
+    f.write(image)
     f.close()
     print('received image')
-    processImage()
+    processImage(room)
 def run():
     # broker.mqttdashboard.com
     broker_address = "iot.eclipse.org"
@@ -32,16 +34,24 @@ def run():
     print("connecting to broker")
     client.connect(broker_address)  # connect to broke
     client.loop_forever()
-def processImage():
+def processImage(room):
     nameImage = './images/tet.jpg'
     global round
     print('--------------------begin mesh function.--------------',round)
     print('time : ',time.time())
     round = round + 1
+    index = -1
+    for i in range(len(rooms)):
+        if room == rooms[i][0]:
+            index = i
+            break
+    if index==-1:
+        rooms = rooms + [room , Terrain()]
     try:
+        t = rooms[index][1]
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
-        print('Complete All')
+        print(room,', : Complete All')
         if FALL_DETECTED: #when found falling  turn FALL to True
             client.publish("FALL_DETECT", 'FALL')
     except Exception as e:
@@ -49,7 +59,8 @@ def processImage():
         print("Image not clear")
 if __name__ == "__main__":
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-    t = Terrain()
+    rooms = []
+    # t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
     round = 1
