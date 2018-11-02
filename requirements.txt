@@ -1,6 +1,7 @@
 argparse
 dill
 fire
+imutils
 git+https://github.com/ppwwyyxx/tensorpack.git
 Flask==0.10.1
 itsdangerous==0.24
@@ -112,4 +113,3 @@ Werkzeug==0.14.1
 wget==3.2
 whitenoise==4.1
 widgetsnbextension==3.4.2
-imutils

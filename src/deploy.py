@@ -7,6 +7,7 @@ import matplotlib.image as mpimg
 import processImage_before
 from processImage import Terrain
 import os
+import json
 
 #app = Flask(__name__)
 
@@ -20,8 +21,10 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print ("Topic : ", msg.topic)
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
-    image = msg.payload[0]
-    room = msg.payload[1]
+    data = json.load(msg.load)
+    print(data["byteArr"])
+    image = byteArray(data["byteArr"])
+    room = data["room"]
     f.write(image)
     f.close()
     print('received image')

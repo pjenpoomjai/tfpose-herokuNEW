@@ -3,6 +3,7 @@ import time
 import argparse
 ############
 import cv2
+import json
 # broker.mqttdashboard.com
 
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
@@ -44,7 +45,11 @@ while True:
         byteArr = bytearray(fileImage)
         print(time.time())
         print("Publishing message to topic", "zenbo/image")
-        client.publish(topic="zenbo/image", payload= [byteArr,args.room] ,qos=0)
+        data = {"byteArr":str(byteArr),
+                "room":args.room
+                }
+        datas = json.dumps(data)
+        client.publish(topic="zenbo/image", payload= datas ,qos=0)
         print(args.room,',Complete : ',round)
         round = round + 1
     if cv2.waitKey(1)==ord('q'):
