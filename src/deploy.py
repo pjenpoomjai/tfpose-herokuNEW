@@ -20,10 +20,9 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("zenbo/image")
 def on_message(client, userdata, msg):
     print ("Topic : ", msg.topic)
-    data = json.loads(msg.payload)
     # print(data["byteArr"])
-    room = data["byteArr"].pop([-1])
-    image = data["byteArr"]
+    room = msg.payload.pop([-1])
+    image = msg.payload
 
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
     f.write(image)

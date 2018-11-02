@@ -48,12 +48,7 @@ while True:
         # print(byteArr)
         # print(bytearray(str(byteArr))==byteArr)
         print("Publishing message to topic", "zenbo/image")
-        data = {"byteArr":str(byteArr),
-                "room":args.room
-                }
-        datas = json.dumps(data)
-
-        client.publish(topic="zenbo/image", payload= datas ,qos=0)
+        client.publish(topic="zenbo/image", payload= byteArr ,qos=0)
         print(args.room,',Complete : ',round)
         round = round + 1
     if cv2.waitKey(1)==ord('q'):
