@@ -22,16 +22,16 @@ class Terrain(object):
         # Initialize plot.
         self.bitFalling = 0
         plt.ion()
-        # f = plt.figure(figsize=(5, 5))
         f2 = plt.figure(figsize=(6, 5))
 
         self.windowNeck = f2.add_subplot(1, 1, 1)
-        self.windowNeck.set_title('Stable')
+        self.windowNeck.set_title('Speed')
         self.windowNeck.set_xlabel('Time')
-        self.windowNeck.set_ylabel('Distant')
+        self.windowNeck.set_ylabel('Speed')
 
         # plt.show()
         self.times = []
+        self.recordVelocity = [0]
         self.recordNeck = []
         self.recordHIP = []
         self.recordNeck_Rshoulder = []
@@ -40,17 +40,15 @@ class Terrain(object):
         self.fps_time = 0
         self.highestNeck = 0
         self.recordTimeNeckHighest = 0
-        self.scaleFalling = 3000
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
-
         self.recordTimeHIPHighest = 0
         self.surpriseMovingTime = -1
         self.detectedHIP_Y = 0
         self.detectedNECK_Y = 0
         self.extraDistance = 0
         #add more than adapt
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=300,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=100,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
@@ -78,6 +76,7 @@ class Terrain(object):
         self.recordNeck = self.recordNeck[200:]
         self.recordHIP = self.recordHIP[200:]
         self.times = self.times[200:]
+        self.recordVelocity = self.recordVelocity[200:]
         self.recordTimeList = self.recordTimeList[200:]
         self.recordNeck_Rshoulder = self.recordNeck_Rshoulder[200:]
     def getLastRecordTime(self):
@@ -95,14 +94,15 @@ class Terrain(object):
         self.recordHIP = self.recordHIP + [hip]
     def addRecordNeck(self,neck):
         self.recordNeck = self.recordNeck + [neck]
+    def addRecordVelocity(self,neck,time):
+        v = ( abs(neck[-1] - neck[-2]) / abs(time[-1] - time[-2]) )
+        self.recordVelocity = self.recordVelocity + [int(v)]
     def addRecordNeck_RShoulder(self,length):
         self.recordNeck_Rshoulder = self.recordNeck_Rshoulder+[length]
     def lengthBetweenPoint(self,pointA,pointB):
         x = (pointA[0] - pointB[0])**2
         y = (pointA[1] - pointB[1])**2
         return (abs(x - y)**(1/2))
-    def setScaleFalling(self):
-        self.scaleFalling = self.highestHIP - self.highestNeck
     def indexLastNumberMinValueList(self,listA,number):
         last = number
         minValueIndex = -1
@@ -118,6 +118,7 @@ class Terrain(object):
         self.recordHIP = []
         self.recordTimeList = []
         self.recordNeck_Rshoulder = []
+        self.recordVelocity = [0]
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
     def addFPStoWindow(self,window,timeSave):
@@ -238,6 +239,7 @@ class Terrain(object):
         # print('end-inderence',time.time())
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
+        print(self.globalTime)
         image = package[0]
         status_part_body_appear = package[1]
         center_each_body_part = package[2]
@@ -295,8 +297,6 @@ class Terrain(object):
         #UPDATE highest y point NECK  every 1
         #print('TIME : ',time.time() - self.recordTimeNeckHighest)
         # print('start record everything')
-        if 1 in center_each_body_part and (11 in center_each_body_part or 8 in center_each_body_part):
-            self.setScaleFalling()
         #mean not found neck in this frame
         if self.globalTime - self.getLastRecordTime() >= 0.25 :  # every 0.3 second record
             if 1 in center_each_body_part:
@@ -307,6 +307,7 @@ class Terrain(object):
                 self.lastTimesFoundNeck =self.getLastTimes()
                 self.used_quotaVirtureNeck=0
                 self.addRecordNeck(center_each_body_part[1][1])
+                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
                 if 11 in center_each_body_part:
                     self.addRecordHIP(center_each_body_part[11][1])
                 elif 8 in center_each_body_part:
@@ -317,6 +318,7 @@ class Terrain(object):
                 self.addRecordTime(self.globalTime)
                 self.lastTimesFoundNeck =self.getLastTimes()
                 self.addRecordNeck(self.getSecondNeck())
+                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
                 # print('addSecond Neck')
                 self.used_quotaVirtureNeck+=1
             if len(self.recordNeck) > 600:
@@ -358,7 +360,9 @@ class Terrain(object):
             # print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling),'HIP,NECK',self.highestHIP,self.highestNeck)
             # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
             # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
-            if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() - self.highestNeck )> abs(self.scaleFalling):
+            # <100 walk , sit ground , pick up something
+            # >100 suddently fall or suddently action
+            if self.recordVelocity[-1] > 100 and (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
                 self.detecedFirstFalling()
 
         elif self.surpriseMovingTime!=-1:
@@ -371,7 +375,6 @@ class Terrain(object):
                 self.destroyAll()
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 self.setFalling()
-
                 print("Publishing message to topic", "zenbo/messageFALL")
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.destroyAll()
@@ -401,12 +404,13 @@ class Terrain(object):
             #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
-        self.windowNeck.set_ylim([0, 1500])
-        plt.yticks(range(0, 1501, 100), fontsize=14)
+        self.windowNeck.set_ylim([0, 300])
+        plt.yticks(range(0, 300, 20), fontsize=14)
         plt.xlim(0,600)
-        plt.plot(self.times, self.recordNeck)
+        plt.plot(self.times, self.recordVelocity)
         # print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
         plt.pause(0.01)
+        # print('finish')
 
     def animation(self):
         while True:
