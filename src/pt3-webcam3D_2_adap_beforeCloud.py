@@ -4,7 +4,6 @@ import cv2
 import time
 #import os
 import paho.mqtt.client as mqtt
-import numpy as np
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
 from matplotlib import style
@@ -19,11 +18,10 @@ class Terrain(object):
         """
         Initialize the graphics window and mesh surface
         """
-        # Initialize plot.
         self.bitFalling = 0
+        # Initialize plot.
         plt.ion()
         f2 = plt.figure(figsize=(6, 5))
-
         self.windowNeck = f2.add_subplot(1, 1, 1)
         self.windowNeck.set_title('Speed')
         self.windowNeck.set_xlabel('Time')
@@ -43,6 +41,7 @@ class Terrain(object):
         self.recordTimeNeckHighest = 0
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
+
         self.recordTimeHIPHighest = 0
         self.surpriseMovingTime = -1
         self.detectedHIP_Y = 0
@@ -124,24 +123,21 @@ class Terrain(object):
         self.recordYTopRectangle = []
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
-    def addFPStoWindow(self,window,timeSave):
-        cv2.putText(window,
-                    "FPS: %f [press 'q'to quit]" % (
-                        1.0 / (timeSave - self.fps_time)),
-                    (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
-                    (0, 255, 0), 2)
+    # def addFPStoWindow(self,window,timeSave):
+    #     cv2.putText(window,
+    #                 "FPS: %f [press 'q'to quit]" % (
+    #                     1.0 / (timeSave - self.fps_time)),
+    #                 (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
+    #                 (0, 255, 0), 2)
     def detecedFirstFalling(self):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
         print('-------------------------------!!!!falling!!!!!!-----------------')
         print('-------------------------------!!!!falling!!!!!!-----------------')
-        # print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling))
 
         # print('HIGHEST NECK',self.highestNeck)
         # print('current NECK',self.getLastNeck())
         # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
-        # print('-------------------------------!!!!falling!!!!!!-----------------')
-        # print('-------------------------------!!!!falling!!!!!!-----------------')
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
         #low value then far from camera
@@ -159,7 +155,7 @@ class Terrain(object):
         #     self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
         #     print(rate)
         #
-        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/4)
+        self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/2)
         # print('extraDis : ',self.extraDistance)
         # print('set complete ')
     def countdownFalling(self):
@@ -174,11 +170,6 @@ class Terrain(object):
         # print('check STATE 2')
     def resetSurpriseMovingTime(self):
         self.surpriseMovingTime=-1
-    def foundFalling(self):
-        print('----------------------------------------')
-        print('+++++FALL_DETECTED+++++++')
-        print('----------------------------------------')
-        time.sleep(10)
     def getLastNeck(self):
         return self.recordNeck[-1]
     def getLastTimes(self):
@@ -257,7 +248,7 @@ class Terrain(object):
             # print('RESET STABLE,RECORDNECK,HIP,etc. [complete 12 second]')
             self.destroyAll()
         if self.globalTime - self.getLastRecordTime() >= 2:
-            # print('maybe NECK or HUMAN not found [complete 1.5 second]')
+            # print('maybe NECK or HUMAN not found [complete 2 second]')
             self.human_in_frame=False
         # print('end Initialize mesh')
         #find length of neck , R_SHOULDER
@@ -358,7 +349,6 @@ class Terrain(object):
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
-            # print('scaleFalling GOAL: [neck - hip ] ',abs(self.scaleFalling),'HIP,NECK',self.highestHIP,self.highestNeck)
             # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
             # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             # <100 walk , sit ground , pick up something
@@ -377,10 +367,10 @@ class Terrain(object):
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - 2*self.extraDistance)):
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - self.extraDistance)):
                 print('NECK : ',self.recordNeck)
                 print('REC :',self.recordYTopRectangle)
-                print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - 2*self.extraDistance))
+                print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - self.extraDistance))
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
