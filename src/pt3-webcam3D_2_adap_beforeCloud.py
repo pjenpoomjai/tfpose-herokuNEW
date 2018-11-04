@@ -33,6 +33,7 @@ class Terrain(object):
         self.times = []
         self.recordVelocity = [0]
         self.recordNeck = []
+        self.recordYTopRectangle = []
         self.recordHIP = []
         self.recordNeck_Rshoulder = []
         self.recordTimeList = []
@@ -54,7 +55,7 @@ class Terrain(object):
         self.lastTimesFoundNeck = -1
         self.width = 300
         self.height = 300
-        self.quotaVirtureNeck = 2
+        self.quotaVirtureNeck = 1
         self.used_quotaVirtureNeck = 0
         model = 'mobilenet_thin_432x368'
         w, h = model_wh(model)
@@ -73,12 +74,13 @@ class Terrain(object):
             pass
             # print(e)
     def reduceRecord(self) :
-        self.recordNeck = self.recordNeck[200:]
-        self.recordHIP = self.recordHIP[200:]
-        self.times = self.times[200:]
-        self.recordVelocity = self.recordVelocity[200:]
-        self.recordTimeList = self.recordTimeList[200:]
-        self.recordNeck_Rshoulder = self.recordNeck_Rshoulder[200:]
+        self.recordNeck = self.recordNeck[-100:]
+        self.recordHIP = self.recordHIP[-100:]
+        self.times = self.times[-100:]
+        self.recordVelocity = self.recordVelocity[-100:]
+        self.recordTimeList = self.recordTimeList[-100:]
+        self.recordNeck_Rshoulder = self.recordNeck_Rshoulder[-100:]
+        self.recordYTopRectangle = self.recordYTopRectangle[-100:]
     def getLastRecordTime(self):
         if self.recordTimeList==[]:
             return 0
@@ -119,6 +121,7 @@ class Terrain(object):
         self.recordTimeList = []
         self.recordNeck_Rshoulder = []
         self.recordVelocity = [0]
+        self.recordYTopRectangle = []
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
     def addFPStoWindow(self,window,timeSave):
@@ -184,6 +187,11 @@ class Terrain(object):
         return self.secondNeck
     def getLastTimesFoundNeck(self):
         return self.lastTimesFoundNeck
+    def addStatusFall(self,image):
+        color = (0, 255, 0)
+        if self.surpriseMovingTime!=-1:
+            color = (0, 0, 255)
+        cv2.circle(image,(10,10), 10, color, -1)
     def savesecondNeck(self,image):
         blur = cv2.GaussianBlur(image, (5, 5), 0)
         fgmask = self.fgbg.apply(blur)
@@ -219,27 +227,18 @@ class Terrain(object):
             # cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
         if (x_left==0 and y_left==0 and x_right==self.width and y_right==self.height)==False:
             cv2.rectangle(image, (x_left, y_left), (x_right, y_right), (0, 255, 0), 2)
-            if self.human_in_frame:
-                self.secondNeck = y_left+10
+            if self.human_in_frame and y_left != -1:
+                self.secondNeck = y_left
+                print('second Neck : ',self.secondNeck)
+                self.recordYTopRectangle = self.recordYTopRectangle + [self.secondNeck]
         cv2.imshow('na',fgmask)
     def mesh(self, image):
-        image = cv2.resize(image, (self.width, self.height))
-        cv2.imshow('normal', image)
-        # RGB = cv2.split(image)
-        # Blue   = RGB[0]
-        # Green = RGB[1]
-        # Red    = RGB[2]
-        # # for i in range(10):
-        # Blue = cv2.equalizeHist(Blue)
-        # Green = cv2.equalizeHist(Green)
-        # Red = cv2.equalizeHist(Red)
-        # image = cv2.merge([Blue,Green, Red])
         # print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         # print('end-inderence',time.time())
         package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
-        print(self.globalTime)
+        # print(self.globalTime)
         image = package[0]
         status_part_body_appear = package[1]
         center_each_body_part = package[2]
@@ -250,6 +249,7 @@ class Terrain(object):
         # if timeSave - self.fps_time > 0:
         #     self.addFPStoWindow(image,timeSave)
         # print('show image')
+        self.addStatusFall(image)
         cv2.imshow('tf-pose-estimation result2', image)
         # self.fps_time = time.time()
         #camera not found NECK more than 10 second then reset list
@@ -261,10 +261,10 @@ class Terrain(object):
             self.human_in_frame=False
         # print('end Initialize mesh')
         #find length of neck , R_SHOULDER
-        if 2 in center_each_body_part and 1 in center_each_body_part:
-            p1 = center_each_body_part[2]
-            p2 = center_each_body_part[1]
-            self.addRecordNeck_RShoulder(self.lengthBetweenPoint(p1,p2))
+        # if 2 in center_each_body_part and 1 in center_each_body_part:
+        #     p1 = center_each_body_part[2]
+        #     p2 = center_each_body_part[1]
+        #     self.addRecordNeck_RShoulder(self.lengthBetweenPoint(p1,p2))
         # if 2 in center_each_body_part and 1 in center_each_body_part:
         #     #R_SHOULDER X point                   Neck X point
         #     if center_each_body_part[2][0] < center_each_body_part[1][0]:
@@ -295,7 +295,6 @@ class Terrain(object):
         #                   ]
         # detected_part = []
         #UPDATE highest y point NECK  every 1
-        #print('TIME : ',time.time() - self.recordTimeNeckHighest)
         # print('start record everything')
         #mean not found neck in this frame
         if self.globalTime - self.getLastRecordTime() >= 0.25 :  # every 0.3 second record
@@ -310,15 +309,17 @@ class Terrain(object):
                 self.addRecordVelocity(self.recordNeck,self.recordTimeList)
                 if 11 in center_each_body_part:
                     self.addRecordHIP(center_each_body_part[11][1])
+                    print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
                 elif 8 in center_each_body_part:
                     self.addRecordHIP(center_each_body_part[8][1])
+                    print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
             elif self.getLastTimesFoundNeck()==self.getLastTimes() and self.used_quotaVirtureNeck<=self.quotaVirtureNeck:
                 # print(self.globalTime - self.getLastRecordTime())
                 self.addCountTimes()
                 self.addRecordTime(self.globalTime)
                 self.lastTimesFoundNeck =self.getLastTimes()
                 self.addRecordNeck(self.getSecondNeck())
-                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
+                self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
                 # print('addSecond Neck')
                 self.used_quotaVirtureNeck+=1
             if len(self.recordNeck) > 600:
@@ -362,13 +363,24 @@ class Terrain(object):
             # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             # <100 walk , sit ground , pick up something
             # >100 suddently fall or suddently action
-            if self.recordVelocity[-1] > 100 and (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
-                self.detecedFirstFalling()
+            h = [0,50,75,105]
+            v = [80,100 , 150 , 250]
+            for i in range(len(h)):
+                if self.highestHIP - self.highestNeck>=h[i]:
+                    velocity = v[i]
+            print('velocity ', velocity)
+            print('person Velocity', self.recordVelocity[-1])
+            if self.recordVelocity[-1] > velocity:
+                if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
+                    self.detecedFirstFalling()
 
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
-            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y-self.extraDistance)):
+            if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - 2*self.extraDistance)):
+                print('NECK : ',self.recordNeck)
+                print('REC :',self.recordYTopRectangle)
+                print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - 2*self.extraDistance))
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
@@ -393,9 +405,11 @@ class Terrain(object):
         ret_val, image = self.cam.read()
         try:
             # print('NEWROUND')
+            image = cv2.resize(image, (self.width, self.height))
+            cv2.imshow('normal', image)
             self.mesh(image)
             # print('--generateGraphStable--')
-            self.generateGraphStable()
+            # self.generateGraphStable()
             # print('COMPLETE-')
         except Exception as e:
             print('ERROR : -> ',e)
