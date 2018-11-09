@@ -99,19 +99,10 @@ class Terrain(object):
         self.recordVelocity = self.recordVelocity + [int(v)]
     def addRecordNeck_RShoulder(self,length):
         self.recordNeck_Rshoulder = self.recordNeck_Rshoulder+[length]
-    def lengthBetweenPoint(self,pointA,pointB):
+    def getLengthBetweenPoint(self,pointA,pointB):
         x = (pointA[0] - pointB[0])**2
         y = (pointA[1] - pointB[1])**2
         return (abs(x - y)**(1/2))
-    def indexLastNumberMinValueList(self,listA,number):
-        last = number
-        minValueIndex = -1
-        minValue = -1
-        for i in range(len(listA)-last,len(listA)):
-            if minValueIndex == -1 or listA[i] < minValue:
-                minValue = listA[i]
-                minValueIndex = i
-        return minValueIndex
     def destroyAll(self):
         self.times = []
         self.recordNeck = []
@@ -248,7 +239,7 @@ class Terrain(object):
         # if 2 in center_each_body_part and 1 in center_each_body_part:
         #     p1 = center_each_body_part[2]
         #     p2 = center_each_body_part[1]
-        #     self.addRecordNeck_RShoulder(self.lengthBetweenPoint(p1,p2))
+        #     self.addRecordNeck_RShoulder(self.getLengthBetweenPoint(p1,p2))
         # if 2 in center_each_body_part and 1 in center_each_body_part:
         #     #R_SHOULDER X point                   Neck X point
         #     if center_each_body_part[2][0] < center_each_body_part[1][0]:
@@ -313,9 +304,8 @@ class Terrain(object):
             if (self.getLastNeck() < self.highestNeck) or (self.globalTime - self.recordTimeNeckHighest >= 0.25):
                 self.recordTimeNeckHighest = self.globalTime
                 #found last 6  min value
-                index = self.indexLastNumberMinValueList(self.recordNeck,6)
                 # print('find index')
-                self.highestNeck = self.recordNeck[index] #more HIGH more low value
+                self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
                 if len(self.recordHIP)>1:
                     #11 L_HIP
                     if 11 in center_each_body_part:
