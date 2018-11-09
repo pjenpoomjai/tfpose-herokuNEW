@@ -188,8 +188,6 @@ class Terrain(object):
         cnts = cv2.findContours(fgmask.copy(), cv2.RETR_EXTERNAL,
     		cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if imutils.is_cv2() else cnts[1]
-
-    	# loop over the contours
         x_left = -1
         y_left = -1
         x_right = -1
@@ -198,10 +196,7 @@ class Terrain(object):
     		# if the contour is too small, ignore it
             # if cv2.contourArea(c) > 500:
             #     continue
-
     		# compute the bounding box for the contour, draw it on the frame,
-    		# and update the text
-
             (x, y, w, h) = cv2.boundingRect(c)
             if x_left ==-1 :
                 x_left = x
@@ -214,7 +209,6 @@ class Terrain(object):
                 x_right = x+w
             if y+h > y_right:
                 y_right = y+h
-            # cv2.rectangle(image, (x, y), (x+w, y+h), (255, 0, 0), 2)
         if (x_left==0 and y_left==0 and x_right==self.width and y_right==self.height)==False:
             cv2.rectangle(image, (x_left, y_left), (x_right, y_right), (0, 255, 0), 2)
             if self.human_in_frame and y_left != -1:
@@ -312,18 +306,18 @@ class Terrain(object):
                 self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
                 # print('addSecond Neck')
                 self.used_quotaVirtureNeck+=1
-            if len(self.recordNeck) > 600:
+            if len(self.recordNeck) > 600: #when record list more than 600 -> reduce
                 self.reduceRecord()
         # print('find highest neck , hip')
         if len(self.recordNeck)>1:
             if (self.getLastNeck() < self.highestNeck) or (self.globalTime - self.recordTimeNeckHighest >= 0.25):
                 self.recordTimeNeckHighest = self.globalTime
                 #found last 6  min value
-
                 index = self.indexLastNumberMinValueList(self.recordNeck,6)
                 # print('find index')
                 self.highestNeck = self.recordNeck[index] #more HIGH more low value
                 if len(self.recordHIP)>1:
+                    #11 L_HIP
                     if 11 in center_each_body_part:
                         if center_each_body_part[11][1] < self.highestHIP :
                             self.highestHIP = center_each_body_part[11][1]
@@ -362,7 +356,6 @@ class Terrain(object):
             if self.recordVelocity[-1] > velocity:
                 if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
                     self.detecedFirstFalling()
-
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
@@ -380,7 +373,6 @@ class Terrain(object):
                 client.publish("zenbo/messageFALL", 'FALL DETECTED')
                 self.destroyAll()
         # print('end processing falling end mash()')
-
     def setFalling(self):
         self.bitFalling = 1
     def getBitFalling(self):
@@ -403,7 +395,6 @@ class Terrain(object):
         except Exception as e:
             print('ERROR : -> ',e)
             pass
-
             #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
@@ -414,7 +405,6 @@ class Terrain(object):
         # print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
         plt.pause(0.01)
         # print('finish')
-
     def animation(self):
         while True:
             self.update()
@@ -422,7 +412,6 @@ class Terrain(object):
                 self.cam.release()
                 cv2.destroyAllWindows()
                 break
-
 if __name__ == '__main__':
     # os.chdir('..')
     t = Terrain()
