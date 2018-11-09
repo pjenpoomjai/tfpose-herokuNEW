@@ -6,7 +6,6 @@ import time
 import paho.mqtt.client as mqtt
 from estimator import TfPoseEstimator
 from networks import get_graph_path, model_wh
-from matplotlib import style
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import imutils
@@ -123,12 +122,12 @@ class Terrain(object):
         self.recordYTopRectangle = []
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
-    # def addFPStoWindow(self,window,timeSave):
-    #     cv2.putText(window,
-    #                 "FPS: %f [press 'q'to quit]" % (
-    #                     1.0 / (timeSave - self.fps_time)),
-    #                 (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
-    #                 (0, 255, 0), 2)
+    def addFPStoWindow(self,window,timeSave):
+        cv2.putText(window,
+                    "FPS: %f [press 'q'to quit]" % (
+                        1.0 / (timeSave - self.fps_time)),
+                    (10, 20),  cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (0, 255, 0), 2)
     def detecedFirstFalling(self):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
@@ -235,11 +234,11 @@ class Terrain(object):
         center_each_body_part = package[2]
         self.resetBitFalling()
         self.savesecondNeck(image)
-        # print('insert FPS')
-        # timeSave = time.time()
-        # if timeSave - self.fps_time > 0:
-        #     self.addFPStoWindow(image,timeSave)
-        # print('show image')
+        print('insert FPS')
+        timeSave = time.time()
+        if timeSave - self.fps_time > 0:
+            self.addFPStoWindow(image,timeSave)
+        print('show image')
         self.addStatusFall(image)
         cv2.imshow('tf-pose-estimation result2', image)
         # self.fps_time = time.time()
@@ -426,7 +425,6 @@ class Terrain(object):
 
 if __name__ == '__main__':
     # os.chdir('..')
-    style.use('ggplot')
     t = Terrain()
     # broker.mqttdashboard.com
     broker_address = "iot.eclipse.org"
