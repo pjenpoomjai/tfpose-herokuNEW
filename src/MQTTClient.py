@@ -3,7 +3,6 @@ import time
 import argparse
 ############
 import cv2
-import json
 # broker.mqttdashboard.com
 
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
