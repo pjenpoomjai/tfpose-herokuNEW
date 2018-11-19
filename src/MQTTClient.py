@@ -28,7 +28,7 @@ round = 1
 # client.publish(topic="nonine", payload= "FALL" ,qos=0)
 while True:
     ret_int,img = f.read()
-    cv2.imshow('came',img)
+    # cv2.imshow('came',img)
     #if recordTime!=int(time.time()):    3 picture / sec
     if time.time() - recordTime > 0.3:
         pathName = './images/'
