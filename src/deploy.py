@@ -29,8 +29,8 @@ def on_message(client, userdata, msg):
     print('received image')
     processImage(room)
 def run():
-    # broker.mqttdashboard.com
-    broker_address = "iot.eclipse.org"
+    broker_address = "broker.mqttdashboard.com"
+    #broker_address = "iot.eclipse.org"
     client.on_connect = on_connect
     client.on_message = on_message  # attach function to callback
     print("connecting to broker")
@@ -39,7 +39,7 @@ def run():
 def processImage(room):
     nameImage = './images/tet.jpg'
     global round
-    print('--------------------begin mesh function.--------------',round)
+    print('room : ',room,'---------begin mesh function.--------------',round)
     print('time : ',time.time())
     round = round + 1
     index = -1

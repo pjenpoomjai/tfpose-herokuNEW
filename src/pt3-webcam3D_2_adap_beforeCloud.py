@@ -405,8 +405,8 @@ class Terrain(object):
 if __name__ == '__main__':
     # os.chdir('..')
     t = Terrain()
-    # broker.mqttdashboard.com
-    broker_address = "iot.eclipse.org"
+    broker_address = "broker.mqttdashboard.com"
+    #broker_address = "iot.eclipse.org"
     # print("creating new instance")
     client = mqtt.Client("comProcess")  # create new instance
     # client.on_message = on_message  # attach function to callback

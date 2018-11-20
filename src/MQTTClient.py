@@ -8,10 +8,10 @@ import cv2
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
 parser.add_argument('--room', default='1', help='number room')
 args = parser.parse_args()
-
-broker_address = "iot.eclipse.org"
+broker_address = "broker.mqttdashboard.com"
+#broker_address = "iot.eclipse.org"
 print("creating new instance")
-client = mqtt.Client("client1")  # create new instance
+client = mqtt.Client('camera_z_'+args.room)  # create new instance
 # client.on_message = on_message  # attach function to callback
 
 print("connecting to broker")
