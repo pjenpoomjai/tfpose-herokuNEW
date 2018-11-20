@@ -9,6 +9,7 @@ from networks import get_graph_path, model_wh
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import imutils
+import argparse
 
 
 class Terrain(object):
@@ -219,11 +220,11 @@ class Terrain(object):
         center_each_body_part = package[2]
         self.resetBitFalling()
         self.savesecondNeck(image)
-        print('insert FPS')
-        timeSave = time.time()
-        if timeSave - self.fps_time > 0:
-            self.addFPStoWindow(image,timeSave)
-        print('show image')
+        # print('insert FPS')
+        # timeSave = time.time()
+        # if timeSave - self.fps_time > 0:
+        #     self.addFPStoWindow(image,timeSave)
+        # print('show image')
         self.addStatusFall(image)
         cv2.imshow('tf-pose-estimation result2', image)
         # self.fps_time = time.time()
@@ -397,6 +398,7 @@ class Terrain(object):
         # print('finish')
     def animation(self):
         while True:
+            print('update...'+args.room)
             self.update()
             if cv2.waitKey(1) == ord('q'):
                 self.cam.release()
@@ -408,7 +410,10 @@ if __name__ == '__main__':
     broker_address = "broker.mqttdashboard.com"
     #broker_address = "iot.eclipse.org"
     # print("creating new instance")
-    client = mqtt.Client("comProcess")  # create new instance
+    parser = argparse.ArgumentParser(description='Sent Image to cloud')
+    parser.add_argument('--room', default='1', help='number room')
+    args = parser.parse_args()
+    client = mqtt.Client("comProcess"+args.room)  # create new instance
     # client.on_message = on_message  # attach function to callback
     # print("connecting to broker")
     client.connect(broker_address)  # connect to broker
