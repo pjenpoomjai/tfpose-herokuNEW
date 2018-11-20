@@ -55,7 +55,7 @@ def processImage(room):
         FALL_DETECTED = t.getBitFalling()
         print(room,', : Complete All')
         if FALL_DETECTED: #when found falling  turn FALL to True
-            client.publish("FALL_DETECT", 'FALL')
+            client.publish("FALL_DETECT", 'FALL_'+rooms[index][0])
     except Exception as e:
         print(e)
         print("Image not clear")
