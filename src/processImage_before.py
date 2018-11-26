@@ -105,12 +105,11 @@ class Terrain(object):
     def detecedFirstFalling(self):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
-        print('-------------------------------!!!!falling!!!!!!-----------------')
-        print('-------------------------------!!!!falling!!!!!!-----------------')
+        print('-----!!!!falling!!!!!!-------')
 
-        print('HIGHEST NECK',self.highestNeck)
-        print('current NECK',self.getLastNeck())
-        print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
+        # print('HIGHEST NECK',self.highestNeck)
+        # print('current NECK',self.getLastNeck())
+        # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
         #low value then far from camera
@@ -132,15 +131,14 @@ class Terrain(object):
         print('extraDis : ',self.extraDistance)
         print('set complete ')
     def countdownFalling(self):
-        print('----------------------------------------')
         # print('StartTime From: ',self.surpriseMovingTime)
-        print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
+        print('Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!')
         # print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
         # print('current your NECK : ',self.getLastNeck())
         # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
         print('----------------------------------------')
         #maybe not Falling but make sure with NECK last must move up to this position
-        print('check STATE 2')
+        # print('Check in second stage.')
     def resetSurpriseMovingTime(self):
         self.surpriseMovingTime=-1
     def getLastNeck(self):
@@ -279,7 +277,7 @@ class Terrain(object):
                 self.used_quotaVirtureNeck+=1
             if len(self.recordNeck) > 600:
                 self.reduceRecord()
-        print('find highest neck , hip')
+        # print('find highest neck , hip')
         if len(self.recordNeck)>1:
             if (self.getLastNeck() < self.highestNeck) or (self.globalTime - self.recordTimeNeckHighest >= 0.25):
                 self.recordTimeNeckHighest = self.globalTime
@@ -311,8 +309,8 @@ class Terrain(object):
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
-            print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
-            print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
+            # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
+            # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             # <100 walk , sit ground , pick up something
             # >100 suddently fall or suddently action
             h = [0,50,75,105]
@@ -320,8 +318,8 @@ class Terrain(object):
             for i in range(len(h)):
                 if self.highestHIP - self.highestNeck>=h[i]:
                     velocity = v[i]
-            print('velocity ', velocity)
-            print('person Velocity', self.recordVelocity[-1])
+            print('Velocity point', velocity)
+            print('person Velocity : ', self.recordVelocity[-1])
             if self.recordVelocity[-1] > velocity:
                 if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
                     self.detecedFirstFalling()
@@ -330,14 +328,15 @@ class Terrain(object):
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y-self.extraDistance)):
-                print('NECK : ',self.recordNeck)
-                print('REC :',self.recordYTopRectangle)
-                print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - self.extraDistance))
+                # print('NECK : ',self.recordNeck)
+                # print('REC :',self.recordYTopRectangle)
+                # print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - self.extraDistance))
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
                 self.destroyAll()
             elif self.globalTime - self.surpriseMovingTime >= 10:
+                print('Warning : Falling happening')
                 self.setFalling()
                 self.destroyAll()
         print('end processing falling end mash()')

@@ -26,7 +26,8 @@ def on_message(client, userdata, msg):
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
     f.write(image)
     f.close()
-    print('received image')
+    print('Received data'.)
+    print('Complete : split room number and image.')
     processImage(room)
 def run():
     broker_address = "broker.mqttdashboard.com"
@@ -39,8 +40,6 @@ def run():
 def processImage(room):
     nameImage = './images/tet.jpg'
     global round
-    print('room : ',room,'---------begin mesh function.--------------',round)
-    print('time : ',time.time())
     round = round + 1
     index = -1
     for i in range(len(rooms)):
@@ -49,13 +48,20 @@ def processImage(room):
             break
     if index==-1:
         rooms = rooms + [room , Terrain()]
+        print("Create room number #",room)
     try:
+        print('room : ',room,'----begin mesh function.-----',round)
+        print('time : ',time.time())
         t = rooms[index][1]
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
-        print(room,', : Complete All')
+        print(room,', : Complete mesh all')
         if FALL_DETECTED: #when found falling  turn FALL to True
             client.publish("FALL_DETECT", 'FALL_'+rooms[index][0])
+            print('Send signal to zenbo.')
+            print('.')
+            print('. .')
+            print('Complete.')
     except Exception as e:
         print(e)
         print("Image not clear")
