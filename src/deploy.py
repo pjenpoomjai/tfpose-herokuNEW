@@ -26,7 +26,7 @@ def on_message(client, userdata, msg):
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
     f.write(image)
     f.close()
-    print('Received data'.)
+    print('Received data.')
     print('Complete : split room number and image.')
     processImage(room)
 def run():
@@ -40,24 +40,27 @@ def run():
 def processImage(room):
     nameImage = './images/tet.jpg'
     global round
+    global rooms
+    global terrains
+    print('room : ',room,'----begin mesh function.-----',round)
+    print('time : ',time.time())
     round = round + 1
     index = -1
     for i in range(len(rooms)):
-        if room == rooms[i][0]:
+        if room == rooms[i]:
             index = i
             break
     if index==-1:
-        rooms = rooms + [room , Terrain()]
+        rooms = rooms + [room]
+        terrains = terrains + [Terrain()]
         print("Create room number #",room)
     try:
-        print('room : ',room,'----begin mesh function.-----',round)
-        print('time : ',time.time())
-        t = rooms[index][1]
+        t = terrains[index]
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
-        print(room,', : Complete mesh all')
+        print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
-            client.publish("FALL_DETECT", 'FALL_'+rooms[index][0])
+            client.publish("FALL_DETECT", 'FALL_'+str(room))
             print('Send signal to zenbo.')
             print('.')
             print('. .')
@@ -68,6 +71,7 @@ def processImage(room):
 if __name__ == "__main__":
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     rooms = []
+    terrains = []
     # t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
