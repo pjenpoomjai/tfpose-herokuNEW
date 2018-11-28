@@ -20,7 +20,7 @@ client.connect(broker_address)  # connect to broker
 #print("Publishing message to topic", "if/test")
 message = 'end'
 
-camera = args.camera
+camera = int(args.camera)
 recordTime =0
 f = cv2.VideoCapture(camera)
 numberCount = 0
