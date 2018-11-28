@@ -7,6 +7,7 @@ import cv2
 
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
 parser.add_argument('--room', default='1', help='number room')
+parser.add_argument('--camera', default='0', help='camera in or out')
 args = parser.parse_args()
 broker_address = "broker.mqttdashboard.com"
 #broker_address = "iot.eclipse.org"
@@ -19,7 +20,7 @@ client.connect(broker_address)  # connect to broker
 #print("Publishing message to topic", "if/test")
 message = 'end'
 
-camera = 0
+camera = args.camera
 recordTime =0
 f = cv2.VideoCapture(camera)
 numberCount = 0

@@ -39,22 +39,23 @@ def run():
     client.loop_forever()
 def processImage(room):
     nameImage = './images/tet.jpg'
-    global round
+    global rounds
     global rooms
     global terrains
-    print('room : ',room,'----begin mesh function.-----',round)
-    print('time : ',time.time())
-    round = round + 1
     index = -1
     for i in range(len(rooms)):
         if room == rooms[i]:
             index = i
+            rounds[index] = rounds[index] + 1
             break
     if index==-1:
+        rounds = rounds + [1]
         rooms = rooms + [room]
         terrains = terrains + [Terrain()]
         print("Create room number #",room)
     try:
+        print('room : ',room,'----begin mesh function.-----',rounds[index])
+        print('time : ',time.time())
         t = terrains[index]
         t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
@@ -75,5 +76,5 @@ if __name__ == "__main__":
     # t = Terrain()
     print("creating new instance")
     client = mqtt.Client('cloudPRocess')  # create new instance
-    round = 1
+    rounds = []
     run()
