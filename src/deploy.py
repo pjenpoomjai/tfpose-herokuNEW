@@ -62,7 +62,7 @@ def processImage(room):
         print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
             client.publish("FALL_DETECT", 'FALL_'+str(room))
-            print('Send signal to zenbo.')
+            print('Send signal to zenbo. ( room = ' +str(room)+ " )")
             print('.')
             print('. .')
             print('Complete.')
