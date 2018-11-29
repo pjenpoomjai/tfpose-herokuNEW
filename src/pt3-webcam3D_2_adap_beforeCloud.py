@@ -344,9 +344,8 @@ class Terrain(object):
                     velocity = v[i]
             print('velocity ', velocity)
             print('person Velocity', self.recordVelocity[-1])
-            if self.recordVelocity[-1] > velocity:
-                if (self.getLastNeck() > self.highestNeck) and (self.getLastNeck() > self.highestHIP ):
-                    self.detecedFirstFalling()
+            if self.recordVelocity[-1] > velocity and (self.getLastNeck() > self.highestHIP ):
+                self.detecedFirstFalling()
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)

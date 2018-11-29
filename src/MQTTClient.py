@@ -9,8 +9,8 @@ parser = argparse.ArgumentParser(description='Sent Image to cloud')
 parser.add_argument('--room', default='somewhere', help='number room')
 parser.add_argument('--camera', default='0', help='camera in or out')
 args = parser.parse_args()
-#broker_address = "broker.mqttdashboard.com"
-broker_address = "iot.eclipse.org"
+broker_address = "broker.mqttdashboard.com"
+#broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client('camera_z_'+args.room)  # create new instance
 # client.on_message = on_message  # attach function to callback

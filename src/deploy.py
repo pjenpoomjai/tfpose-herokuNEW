@@ -34,8 +34,8 @@ def on_message(client, userdata, msg):
     print('Complete : split room number and image.',name_room)
     processImage(name_room)
 def run():
-    #broker_address = "broker.mqttdashboard.com"
-    broker_address = "iot.eclipse.org"
+    broker_address = "broker.mqttdashboard.com"
+    #broker_address = "iot.eclipse.org"
     client.on_connect = on_connect
     client.on_message = on_message  # attach function to callback
     print("connecting to broker")
