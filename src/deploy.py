@@ -21,17 +21,21 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print ("Topic : ", msg.topic)
     # print(data["byteArr"])
-    room = msg.payload[-1]
-    image = msg.payload[:-1]
+    count_letter = int(msg.payload[-1])
+    array_name_room = msg.payload[-(count_letter+1):-1]
+    name_room = ""
+    for assi in array_name_room:
+        name_room = name_room + chr(int(assi))
+    image = msg.payload[:-(count_letter+1)]
     f = open("./images/tet.jpg", "wb")  #there is a output.jpg which is different
     f.write(image)
     f.close()
     print('Received data.')
-    print('Complete : split room number and image.')
-    processImage(room)
+    print('Complete : split room number and image.',name_room)
+    processImage(name_room)
 def run():
-    broker_address = "broker.mqttdashboard.com"
-    #broker_address = "iot.eclipse.org"
+    #broker_address = "broker.mqttdashboard.com"
+    broker_address = "iot.eclipse.org"
     client.on_connect = on_connect
     client.on_message = on_message  # attach function to callback
     print("connecting to broker")
@@ -61,8 +65,9 @@ def processImage(room):
         FALL_DETECTED = t.getBitFalling()
         print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
-            client.publish("FALL_DETECT", 'FALL_'+str(room))
-            print('Send signal to zenbo. ( room = ' +str(room)+ " )")
+            word = 'FALL_'+room
+            client.publish("FALL_DETECT", word)
+            print('Send signal to zenbo. ( ' +word+ " )")
             print('.')
             print('. .')
             print('Complete.')

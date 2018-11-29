@@ -6,11 +6,11 @@ import cv2
 # broker.mqttdashboard.com
 
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
-parser.add_argument('--room', default='1', help='number room')
+parser.add_argument('--room', default='somewhere', help='number room')
 parser.add_argument('--camera', default='0', help='camera in or out')
 args = parser.parse_args()
-broker_address = "broker.mqttdashboard.com"
-#broker_address = "iot.eclipse.org"
+#broker_address = "broker.mqttdashboard.com"
+broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client('camera_z_'+args.room)  # create new instance
 # client.on_message = on_message  # attach function to callback
@@ -43,7 +43,10 @@ while True:
         fileImage = open(picName,'rb')
         fileImage = fileImage.read()
         byteArr = bytearray(fileImage)
-        byteArr.append(int(args.room))
+        for letter in args.room:
+            byteArr.append(ord(letter))
+            print(ord(letter))
+        byteArr.append(len(args.room))
         print(time.time())
         # print(byteArr)
         # print(bytearray(str(byteArr))==byteArr)
