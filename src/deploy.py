@@ -66,8 +66,13 @@ def processImage(room):
         print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
             word = 'FALL_'+room
+            f = open("./images/tet.jpg", "rb")  #there is a output.jpg which is different
+            image = f.read()
+            f.close()
+            client.publish("zenbofall/linebot", image)
             client.publish("FALL_DETECT", word)
             print('Send signal to zenbo. ( ' +word+ " )")
+            print('Send image too.')
             print('.')
             print('. .')
             print('Complete.')

@@ -45,7 +45,6 @@ while True:
         byteArr = bytearray(fileImage)
         for letter in args.room:
             byteArr.append(ord(letter))
-            print(ord(letter))
         byteArr.append(len(args.room))
         print(time.time())
         # print(byteArr)
