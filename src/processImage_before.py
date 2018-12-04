@@ -313,11 +313,13 @@ class Terrain(object):
             # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             # <100 walk , sit ground , pick up something
             # >100 suddently fall or suddently action
-            h = [0,50,75,105]
-            v = [80,100 , 150 , 250]
-            for i in range(len(h)):
-                if self.highestHIP - self.highestNeck>=h[i]:
-                    velocity = v[i]
+            # h = [0,50,75,105]
+            # v = [80,100 , 150 , 250]
+            # print('hip - neck ', self.highestHIP - self.highestNeck)
+            # for i in range(len(h)):
+            #     if self.highestHIP - self.highestNeck>=h[i]:
+            #         velocity = v[i]
+            velocity = int(abs((self.highestHIP - self.highestNeck)/2) / (self.recordTimeList[-1] - self.recordTimeList[-2]))
             print('Velocity point', velocity)
             print('person Velocity : ', self.recordVelocity[-1])
             if self.recordVelocity[-1] > velocity:

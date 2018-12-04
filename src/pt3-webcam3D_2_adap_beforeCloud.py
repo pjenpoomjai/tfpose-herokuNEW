@@ -337,14 +337,19 @@ class Terrain(object):
             # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
             # <100 walk , sit ground , pick up something
             # >100 suddently fall or suddently action
-            h = [0,50,75,105]
-            v = [80,100 , 150 , 250]
-            for i in range(len(h)):
-                if self.highestHIP - self.highestNeck>=h[i]:
-                    velocity = v[i]
+            # h = [0,50,75,105]
+            # v = [80,100 , 150 , 250]
+            # print('hip - neck ', self.highestHIP - self.highestNeck)
+            # for i in range(len(h)):
+            #     if self.highestHIP - self.highestNeck>=h[i]:
+            #         velocity = v[i]
+            velocity = int(abs((self.highestHIP - self.highestNeck)/2) / (self.recordTimeList[-1] - self.recordTimeList[-2]))
             print('velocity ', velocity)
-            print('person Velocity', self.recordVelocity[-1])
-            if self.recordVelocity[-1] > velocity and (self.getLastNeck() > self.highestHIP ):
+            # print('person Velocity', self.recordVelocity[-1])
+            print(self.recordVelocity[-1], velocity)
+            print(self.getLastNeck(), self.highestHIP)
+            if self.recordVelocity[-1] >= velocity and (self.getLastNeck() >= self.highestHIP ):
+
                 self.detecedFirstFalling()
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
@@ -380,7 +385,7 @@ class Terrain(object):
             cv2.imshow('normal', image)
             self.mesh(image)
             # print('--generateGraphStable--')
-            # self.generateGraphStable()
+            self.generateGraphStable()
             # print('COMPLETE-')
         except Exception as e:
             print('ERROR : -> ',e)
@@ -388,7 +393,7 @@ class Terrain(object):
             #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
-        self.windowNeck.set_ylim([0, 300])
+        self.windowNeck.set_ylim([0, 400])
         plt.yticks(range(0, 300, 20), fontsize=14)
         plt.xlim(0,600)
         plt.plot(self.times, self.recordVelocity)
