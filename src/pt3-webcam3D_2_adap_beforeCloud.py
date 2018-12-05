@@ -63,15 +63,6 @@ class Terrain(object):
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
         self.cam = cv2.VideoCapture(camera)
-        # self.cam.set(10,255)
-        # self.cam.set(11, 1   ) # contrast       min: 0   , max: 255 , increment:1
-        # self.cam.set(12,17)
-        ret_val, image = self.cam.read(cv2.IMREAD_GRAYSCALE)
-        try:
-            self.mesh(image)
-        except Exception as e:
-            pass
-            # print(e)
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[-100:]
         self.recordHIP = self.recordHIP[-100:]
