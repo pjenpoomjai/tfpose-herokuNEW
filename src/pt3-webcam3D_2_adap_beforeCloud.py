@@ -116,7 +116,6 @@ class Terrain(object):
         self.detectedHIP_Y  = self.highestHIP
         print('-------------------------------!!!!falling!!!!!!-----------------')
         print('-------------------------------!!!!falling!!!!!!-----------------')
-
         # print('HIGHEST NECK',self.highestNeck)
         # print('current NECK',self.getLastNeck())
         # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
@@ -127,24 +126,12 @@ class Terrain(object):
         # print(min(self.recordNeck_Rshoulder[-7:-2]))
         # print(self.recordNeck_Rshoulder[-1])
         # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
-        # if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
-        #     print('ENTER CAMERA')
-        #     self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
-        #
-        # else:
-        #     print('OUT CAMERA')
-        #     rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
-        #     self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
-        #     print(rate)
-        #
         self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/2)
         # print('extraDis : ',self.extraDistance)
         # print('set complete ')
     def countdownFalling(self):
-        # print('----------------------------------------')
         # print('StartTime From: ',self.surpriseMovingTime)
         print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
-        # print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
         # print('current your NECK : ',self.getLastNeck())
         # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
         print('----------------------------------------')
@@ -227,18 +214,6 @@ class Terrain(object):
             # print('maybe NECK or HUMAN not found [complete 2 second]')
             self.human_in_frame=False
         # print('end Initialize mesh')
-        #find length of neck , R_SHOULDER
-        # if 2 in center_each_body_part and 1 in center_each_body_part:
-        #     p1 = center_each_body_part[2]
-        #     p2 = center_each_body_part[1]
-        #     self.addRecordNeck_RShoulder(self.getLengthBetweenPoint(p1,p2))
-        # if 2 in center_each_body_part and 1 in center_each_body_part:
-        #     #R_SHOULDER X point                   Neck X point
-        #     if center_each_body_part[2][0] < center_each_body_part[1][0]:
-        #         print('Front')
-        #     elif center_each_body_part[2][0] > center_each_body_part[1][0]:
-        #         print('Back')
-
         # print(status_part_body_appear)
         #when draw2D stick man
         # name_part_body = ["Nose",  # 0
@@ -264,63 +239,65 @@ class Terrain(object):
         #UPDATE highest y point NECK  every 1
         # print('start record everything')
         #mean not found neck in this frame
-        if self.globalTime - self.getLastRecordTime() >= 0.25 :  # every 0.3 second record
-            if 1 in center_each_body_part:
-                # print(self.globalTime - self.getLastRecordTime())
-                self.addCountTimes()
-                self.addRecordTime(self.globalTime)
-                self.human_in_frame = True
-                self.lastTimesFoundNeck =self.getLastTimes()
-                self.used_quotaVirtureNeck=0
-                self.addRecordNeck(center_each_body_part[1][1])
-                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
-                if 11 in center_each_body_part:
-                    self.addRecordHIP(center_each_body_part[11][1])
-                    print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
-                elif 8 in center_each_body_part:
-                    self.addRecordHIP(center_each_body_part[8][1])
-                    print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
-            elif self.getLastTimesFoundNeck()==self.getLastTimes() and self.used_quotaVirtureNeck<=self.quotaVirtureNeck:
-                # print(self.globalTime - self.getLastRecordTime())
-                self.addCountTimes()
-                self.addRecordTime(self.globalTime)
-                self.lastTimesFoundNeck =self.getLastTimes()
-                self.addRecordNeck(self.getSecondNeck())
-                self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
-                # print('addSecond Neck')
-                self.used_quotaVirtureNeck+=1
-            if len(self.recordNeck) > 600: #when record list more than 600 -> reduce
-                self.reduceRecord()
+        if 1 in center_each_body_part:
+            # print(self.globalTime - self.getLastRecordTime())
+            self.addCountTimes()
+            self.addRecordTime(self.globalTime)
+            self.human_in_frame = True
+            self.lastTimesFoundNeck =self.getLastTimes()
+            self.used_quotaVirtureNeck=0
+            self.addRecordNeck(center_each_body_part[1][1])
+            self.addRecordVelocity(self.recordNeck,self.recordTimeList)
+            if 11 in center_each_body_part:
+                self.addRecordHIP(center_each_body_part[11][1])
+                print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
+            elif 8 in center_each_body_part:
+                self.addRecordHIP(center_each_body_part[8][1])
+                print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
+        elif self.getLastTimesFoundNeck()==self.getLastTimes() and self.used_quotaVirtureNeck<=self.quotaVirtureNeck:
+            # print(self.globalTime - self.getLastRecordTime())
+            self.addCountTimes()
+            self.addRecordTime(self.globalTime)
+            self.lastTimesFoundNeck =self.getLastTimes()
+            self.addRecordNeck(self.getSecondNeck())
+            self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
+            # print('addSecond Neck')
+            self.used_quotaVirtureNeck+=1
+        if len(self.recordNeck) > 600: #when record list more than 600 -> reduce
+            self.reduceRecord()
+
         # print('find highest neck , hip')
         if len(self.recordNeck)>1:
-            if (self.getLastNeck() < self.highestNeck) or (self.globalTime - self.recordTimeNeckHighest >= 0.25):
+            self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
+            if (self.getLastNeck() < self.highestNeck):
                 self.recordTimeNeckHighest = self.globalTime
                 #found last 6  min value
-                # print('find index')
-                self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
-                if len(self.recordHIP)>1:
-                    #11 L_HIP
-                    if 11 in center_each_body_part:
-                        if center_each_body_part[11][1] < self.highestHIP :
-                            self.highestHIP = center_each_body_part[11][1]
-                            self.recordTimeHIPHighest = self.globalTime
-                        elif self.globalTime - self.recordTimeHIPHighest >= 0.25:
-                            #self.highestHIP = self.recordHIP[minIndex]
-                            self.highestHIP = min(self.recordHIP[-6:])
-                            self.recordTimeHIPHighest = self.globalTime
-                    #8 R_HIP
-                    elif 8 in center_each_body_part:
-                        if center_each_body_part[8][1] < self.highestHIP :
-                            self.highestHIP = center_each_body_part[8][1]
-                            self.recordTimeHIPHighest = self.globalTime
-                        elif self.globalTime - self.recordTimeHIPHighest >= 0.25:
-                            #self.highestHIP = self.recordHIP[minIndex]
-                            self.highestHIP = min(self.recordHIP[-6:])
-                            self.recordTimeHIPHighest = self.globalTime
+            if len(self.recordHIP)>1:
+                #11 L_HIP
+                if 11 in center_each_body_part:
+                    if center_each_body_part[11][1] < self.highestHIP :
+                        self.highestHIP = center_each_body_part[11][1]
+                        self.recordTimeHIPHighest = self.globalTime
+                    else:
+                        #self.highestHIP = self.recordHIP[minIndex]
+                        self.highestHIP = min(self.recordHIP[-6:])
+                        self.recordTimeHIPHighest = self.globalTime
+                #8 R_HIP
+                elif 8 in center_each_body_part:
+                    if center_each_body_part[8][1] < self.highestHIP :
+                        self.highestHIP = center_each_body_part[8][1]
+                        self.recordTimeHIPHighest = self.globalTime
+                    else:
+                        #self.highestHIP = self.recordHIP[minIndex]
+                        self.highestHIP = min(self.recordHIP[-6:])
+                        self.recordTimeHIPHighest = self.globalTime
+
         # found NECK
         # print('processing falling ---------')
         # print('NECK : -',self.recordNeck)
         # print('HIP : -',self.recordHIP)
+        print('highestNECK',self.highestNeck)
+        print('highestHIP',self.highestHIP)
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
@@ -335,12 +312,9 @@ class Terrain(object):
             #     if self.highestHIP - self.highestNeck>=h[i]:
             #         velocity = v[i]
             velocity = int(abs((self.highestHIP - self.highestNeck)/2) / (self.recordTimeList[-1] - self.recordTimeList[-2]))
-            print('velocity ', velocity)
-            # print('person Velocity', self.recordVelocity[-1])
-            print(self.recordVelocity[-1], velocity)
-            print(self.getLastNeck(), self.highestHIP)
+            print('vHUMAN ',self.recordVelocity[-1],' > vTh :', velocity)
+            print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP,'time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
             if self.recordVelocity[-1] >= velocity and (self.getLastNeck() >= self.highestHIP ):
-
                 self.detecedFirstFalling()
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()

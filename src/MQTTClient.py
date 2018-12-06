@@ -31,7 +31,7 @@ while True:
     ret_int,img = f.read()
     # cv2.imshow('came',img)
     #if recordTime!=int(time.time()):    3 picture / sec
-    if time.time() - recordTime > 0.3:
+    if time.time() - recordTime > 0.25:
         pathName = './images/'
         picName = pathName+str(listNameImage[numberCount])+'.jpg'
         numberCount = numberCount + 1
