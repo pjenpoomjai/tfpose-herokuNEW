@@ -38,11 +38,9 @@ class Terrain(object):
         self.globalTime = 0
         self.fps_time = 0
         self.highestNeck = 0
-        self.recordTimeNeckHighest = 0
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
 
-        self.recordTimeHIPHighest = 0
         self.surpriseMovingTime = -1
         self.detectedHIP_Y = 0
         self.detectedNECK_Y = 0
@@ -265,32 +263,16 @@ class Terrain(object):
             self.used_quotaVirtureNeck+=1
         if len(self.recordNeck) > 600: #when record list more than 600 -> reduce
             self.reduceRecord()
-
         # print('find highest neck , hip')
         if len(self.recordNeck)>1:
             self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
-            if (self.getLastNeck() < self.highestNeck):
-                self.recordTimeNeckHighest = self.globalTime
-                #found last 6  min value
             if len(self.recordHIP)>1:
                 #11 L_HIP
                 if 11 in center_each_body_part:
-                    if center_each_body_part[11][1] < self.highestHIP :
-                        self.highestHIP = center_each_body_part[11][1]
-                        self.recordTimeHIPHighest = self.globalTime
-                    else:
-                        #self.highestHIP = self.recordHIP[minIndex]
-                        self.highestHIP = min(self.recordHIP[-6:])
-                        self.recordTimeHIPHighest = self.globalTime
+                    self.highestHIP = min(self.recordHIP[-6:])
                 #8 R_HIP
                 elif 8 in center_each_body_part:
-                    if center_each_body_part[8][1] < self.highestHIP :
-                        self.highestHIP = center_each_body_part[8][1]
-                        self.recordTimeHIPHighest = self.globalTime
-                    else:
-                        #self.highestHIP = self.recordHIP[minIndex]
-                        self.highestHIP = min(self.recordHIP[-6:])
-                        self.recordTimeHIPHighest = self.globalTime
+                    self.highestHIP = min(self.recordHIP[-6:])
 
         # found NECK
         # print('processing falling ---------')
@@ -301,13 +283,8 @@ class Terrain(object):
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
-            # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
-            # print('Top NECk ',self.highestNeck,'  Last Neck ',self.getLastNeck())
-            # <100 walk , sit ground , pick up something
-            # >100 suddently fall or suddently action
             # h = [0,50,75,105]
             # v = [80,100 , 150 , 250]
-            # print('hip - neck ', self.highestHIP - self.highestNeck)
             # for i in range(len(h)):
             #     if self.highestHIP - self.highestNeck>=h[i]:
             #         velocity = v[i]
@@ -322,7 +299,6 @@ class Terrain(object):
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - self.extraDistance)):
                 print('NECK : ',self.recordNeck)
                 print('REC :',self.recordYTopRectangle)
-                print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - self.extraDistance))
                 print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
