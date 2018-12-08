@@ -30,6 +30,7 @@ class Terrain(object):
         self.globalTime = 0
         self.fps_time = 0
         self.highestNeck = 0
+        self.hightestNeckTime = 0
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
 
@@ -79,10 +80,6 @@ class Terrain(object):
         self.recordVelocity = self.recordVelocity + [int(v)]
     def addRecordNeck_RShoulder(self,length):
         self.recordNeck_Rshoulder = self.recordNeck_Rshoulder+[length]
-    def getLengthBetweenPoint(self,pointA,pointB):
-        x = (pointA[0] - pointB[0])**2
-        y = (pointA[1] - pointB[1])**2
-        return (abs(x - y)**(1/2))
 
     def destroyAll(self):
         self.times = []
@@ -104,37 +101,18 @@ class Terrain(object):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
         print('-----!!!!falling!!!!!!-------')
-
-        # print('HIGHEST NECK',self.highestNeck)
-        # print('current NECK',self.getLastNeck())
-        # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
-        #low value then far from camera
         print('set extraDistance')
-        # print(min(self.recordNeck_Rshoulder[-7:-2]))
-        # print(self.recordNeck_Rshoulder[-1])
-        # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
-        # if self.recordNeck_Rshoulder[-1] > minNeckRShoulder:
-        #     print('ENTER CAMERA')
-        #     self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)
-        #
-        # else:
-        #     print('OUT CAMERA')
-        #     rate = self.recordNeck_Rshoulder[-1]/minNeckRShoulder
-        #     self.extraDistance = rate*(self.detectedHIP_Y - self.detectedNECK_Y)
-        #     print(rate)
-
         self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/2)
         print('extraDis : ',self.extraDistance)
         print('set complete ')
     def countdownFalling(self):
         # print('StartTime From: ',self.surpriseMovingTime)
-        print('Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!')
+        print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
         # print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
         # print('current your NECK : ',self.getLastNeck())
         # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
-        print('----------------------------------------')
         #maybe not Falling but make sure with NECK last must move up to this position
         # print('Check in second stage.')
     def resetSurpriseMovingTime(self):
@@ -212,18 +190,6 @@ class Terrain(object):
             print('maybe NECK or HUMAN not found [complete 2 second]')
             self.human_in_frame=False
         print('end Initialize mesh')
-        #find length of neck , R_SHOULDER
-        # if 2 in center_each_body_part and 1 in center_each_body_part:
-        #     p1 = center_each_body_part[2]
-        #     p2 = center_each_body_part[1]
-        #     self.addRecordNeck_RShoulder(self.getLengthBetweenPoint(p1,p2))
-        # if 2 in center_each_body_part and 1 in center_each_body_part:
-        #     #R_SHOULDER X point                   Neck X point
-        #     if center_each_body_part[2][0] < center_each_body_part[1][0]:
-        #         print('Front')
-        #     elif center_each_body_part[2][0] > center_each_body_part[1][0]:
-        #         print('Back')
-
         # print(status_part_body_appear)
         #when draw2D stick man
         # name_part_body = ["Nose",  # 0
@@ -274,22 +240,31 @@ class Terrain(object):
             self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
             # print('addSecond Neck')
             self.used_quotaVirtureNeck+=1
-        if len(self.recordNeck) > 600:
+        if len(self.recordNeck) > 300:
             self.reduceRecord()
         # print('find highest neck , hip')
-        if len(self.recordNeck)>1:
-            self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
-            if len(self.recordHIP)>1:
-                #11 L_HIP
-                if 11 in center_each_body_part:
-                    self.highestHIP = min(self.recordHIP[-6:])
-                #8 R_HIP
-                elif 8 in center_each_body_part:
-                    self.highestHIP = min(self.recordHIP[-6:])
+        minNumber = -1
+        loop = 6
+        if len(self.recordNeck) < loop:
+            loop = len(self.recordNeck)
+        for i in range(1,loop+1):
+            if minNumber==-1 or self.recordNeck[-i] <= minNumber:
+                self.highestNeck = self.recordNeck[-i] #more HIGH more low value
+                self.hightestNeckTime = self.recordTimeList[-i]
+                minNumber = self.recordNeck[-i]
+        print('hightestTIMENECK', self.hightestNeckTime)
+        if len(self.recordHIP)>1:
+            #11 L_HIP
+            if 11 in center_each_body_part:
+                self.highestHIP = min(self.recordHIP[-6:])
+            #8 R_HIP
+            elif 8 in center_each_body_part:
+                self.highestHIP = min(self.recordHIP[-6:])
         # found NECK
         print('processing falling ---------')
         print('highestNECK',self.highestNeck)
         print('highestHIP',self.highestHIP)
+        print('time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
         if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
@@ -297,20 +272,21 @@ class Terrain(object):
             # v = [80,100 , 150 , 250]
             # for i in range(len(h)):
             #     if self.highestHIP - self.highestNeck>=h[i]:
-            #         velocity = v[i]
-            velocity = int(abs((self.highestHIP - self.highestNeck)/2) / (self.recordTimeList[-1] - self.recordTimeList[-2]))
-            print('vHUMAN ',self.recordVelocity[-1],' > vTh :', velocity)
-            print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP,'time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
-            if self.recordVelocity[-1] >= velocity and (self.getLastNeck() >= self.highestHIP ):
-                self.detecedFirstFalling()
+            #         vThreshold = v[i]
+            print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP)
+            if self.getLastNeck() >= self.highestHIP
+             :
+                vHuamnFall = self.recordVelocity[-1]
+                timeFall = 0.3
+                vThreshold = int(abs((self.highestHIP - self.highestNeck)) / timeFall)
+                print('vHumanFall',vHumanFall,' > vTh :', vThreshold)
+                if vHumanFall >= vThreshold:
+                    self.detecedFirstFalling()
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
-            # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y-self.extraDistance)):
                 # print('NECK : ',self.recordNeck)
                 # print('REC :',self.recordYTopRectangle)
-                # print('Is neck < recover ',self.getLastNeck()  , (self.detectedHIP_Y - self.extraDistance))
-                print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
                 self.destroyAll()
@@ -319,7 +295,6 @@ class Terrain(object):
                 self.setFalling()
                 self.destroyAll()
         print('end processing falling end mash()')
-
     def setFalling(self):
         self.bitFalling = 1
     def getBitFalling(self):

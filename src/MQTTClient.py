@@ -1,25 +1,21 @@
 import paho.mqtt.client as mqtt  # import the client1
 import time
 import argparse
-############
 import cv2
 # broker.mqttdashboard.com
-
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
-parser.add_argument('--room', default='somewhere', help='number room')
-parser.add_argument('--camera', default='0', help='camera in or out')
+parser.add_argument('--room', default='somewhere', help='name room')
+parser.add_argument('--camera', default='0', help='camera in or out  [1, 0]')
 args = parser.parse_args()
 broker_address = "broker.mqttdashboard.com"
 #broker_address = "iot.eclipse.org"
 print("creating new instance")
 client = mqtt.Client('camera_z_'+args.room)  # create new instance
 # client.on_message = on_message  # attach function to callback
-
 print("connecting to broker")
 client.connect(broker_address)  # connect to broker
 #print("Publishing message to topic", "if/test")
 message = 'end'
-
 camera = int(args.camera)
 recordTime =0
 f = cv2.VideoCapture(camera)
@@ -31,7 +27,6 @@ while True:
     ret_int,img = f.read()
     # cv2.imshow('came',img)
     #if recordTime!=int(time.time()):    3 picture / sec
-
     if time.time() - recordTime >= 0.25:
         # print(time.time() - recordTime)
         pathName = './images/'
@@ -49,8 +44,6 @@ while True:
             byteArr.append(ord(letter))
         byteArr.append(len(args.room))
         print(time.time())
-        # print(byteArr)
-        # print(bytearray(str(byteArr))==byteArr)
         print("Publishing message to topic", "zenbo/image")
         client.publish(topic="zenbo/image", payload= byteArr ,qos=0)
         print(args.room,',Complete : ',round)
@@ -59,10 +52,3 @@ while True:
         f.release()
         cv2.destroyAllWindows()
         break
-#f = open('a.jpg','rb')
-#fileImage = f.read()
-#f.close()
-#byteArr = bytearray(fileImage)
-#print(byteArr)
-#client.publish("zenbo/message", message)
-#client.publish("zenbo/message", byteArr,0)

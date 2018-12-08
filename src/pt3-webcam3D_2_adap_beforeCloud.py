@@ -38,6 +38,7 @@ class Terrain(object):
         self.globalTime = 0
         self.fps_time = 0
         self.highestNeck = 0
+        self.hightestNeckTime = 0
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
 
@@ -89,10 +90,6 @@ class Terrain(object):
         self.recordVelocity = self.recordVelocity + [int(v)]
     def addRecordNeck_RShoulder(self,length):
         self.recordNeck_Rshoulder = self.recordNeck_Rshoulder+[length]
-    def getLengthBetweenPoint(self,pointA,pointB):
-        x = (pointA[0] - pointB[0])**2
-        y = (pointA[1] - pointB[1])**2
-        return (abs(x - y)**(1/2))
     def destroyAll(self):
         self.times = []
         self.recordNeck = []
@@ -113,17 +110,9 @@ class Terrain(object):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
         print('-------------------------------!!!!falling!!!!!!-----------------')
-        print('-------------------------------!!!!falling!!!!!!-----------------')
-        # print('HIGHEST NECK',self.highestNeck)
-        # print('current NECK',self.getLastNeck())
-        # print('result [ neck ]current - HIGHEST: ',abs(self.getLastNeck() - self.highestNeck))
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
-        #low value then far from camera
         # print('set extraDistance')
-        # print(min(self.recordNeck_Rshoulder[-7:-2]))
-        # print(self.recordNeck_Rshoulder[-1])
-        # minNeckRShoulder = min(self.recordNeck_Rshoulder[-7:-2])
         self.extraDistance = (self.detectedHIP_Y - self.detectedNECK_Y)*(1/2)
         # print('extraDis : ',self.extraDistance)
         # print('set complete ')
@@ -132,7 +121,6 @@ class Terrain(object):
         print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
         # print('current your NECK : ',self.getLastNeck())
         # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)
-        print('----------------------------------------')
         #maybe not Falling but make sure with NECK last must move up to this position
         # print('check STATE 2')
     def resetSurpriseMovingTime(self):
@@ -261,45 +249,59 @@ class Terrain(object):
             self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
             # print('addSecond Neck')
             self.used_quotaVirtureNeck+=1
-        if len(self.recordNeck) > 600: #when record list more than 600 -> reduce
+        if len(self.recordNeck) > 300: #when record list more than 600 -> reduce
             self.reduceRecord()
         # print('find highest neck , hip')
-        if len(self.recordNeck)>1:
-            self.highestNeck = min(self.recordNeck[-6:]) #more HIGH more low value
-            if len(self.recordHIP)>1:
-                #11 L_HIP
-                if 11 in center_each_body_part:
-                    self.highestHIP = min(self.recordHIP[-6:])
-                #8 R_HIP
-                elif 8 in center_each_body_part:
-                    self.highestHIP = min(self.recordHIP[-6:])
-
+        minNumber = -1
+        loop = 6
+        if len(self.recordNeck) < loop:
+            loop = len(self.recordNeck)
+        for i in range(1,loop+1):
+            if minNumber==-1 or self.recordNeck[-i] <= minNumber:
+                self.highestNeck = self.recordNeck[-i] #more HIGH more low value
+                self.hightestNeckTime = self.recordTimeList[-i]
+                minNumber = self.recordNeck[-i]
+        print('hightestTIMENECK', self.hightestNeckTime)
+        if len(self.recordHIP)>1:
+            #11 L_HIP
+            if 11 in center_each_body_part:
+                self.highestHIP = min(self.recordHIP[-6:])
+            #8 R_HIP
+            elif 8 in center_each_body_part:
+                self.highestHIP = min(self.recordHIP[-6:])
         # found NECK
-        # print('processing falling ---------')
-        # print('NECK : -',self.recordNeck)
-        # print('HIP : -',self.recordHIP)
+        print('processing falling ---------')
         print('highestNECK',self.highestNeck)
         print('highestHIP',self.highestHIP)
-        if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
+        print('time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
+        if self.getLastNeck() >= self.highestHIP :
+            print('--------------------------------------WARRNING')
+            print('lastNECK to highestHIP in : ',self.recordTimeList[-1] - self.hightestNeckTime)
+            print('Velocity :',self.recordVelocity[-1])
+            print('vHUMAN First : ',(self.getLastNeck() - self.highestNeck)/(self.recordTimeList[-1] - self.hightestNeckTime) )
+            print('--------------------------------------WARRNING')
+        if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1 :
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
             # h = [0,50,75,105]
             # v = [80,100 , 150 , 250]
             # for i in range(len(h)):
             #     if self.highestHIP - self.highestNeck>=h[i]:
-            #         velocity = v[i]
-            velocity = int(abs((self.highestHIP - self.highestNeck)/2) / (self.recordTimeList[-1] - self.recordTimeList[-2]))
-            print('vHUMAN ',self.recordVelocity[-1],' > vTh :', velocity)
-            print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP,'time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
-            if self.recordVelocity[-1] >= velocity and (self.getLastNeck() >= self.highestHIP ):
-                self.detecedFirstFalling()
+            #         vThreshold = v[i]
+            print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP)
+            if self.getLastNeck() >= self.highestHIP :
+                vHumanFall = abs((self.getLastNeck() - self.highestNeck) / (self.recordTimeList[-1] - self.hightestNeckTime))
+                vHumanFall = self.recordVelocity[-1]
+                timeFall = 0.3
+                vThreshold = int(abs((self.highestHIP - self.highestNeck)) / (timeFall))
+                print('vHumanFall',vHumanFall,' > vTh :', vThreshold)
+                if vHumanFall >= vThreshold:
+                    self.detecedFirstFalling()
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
-            # print('times - times : ',self.times[-1] - self.saveTimesStartFalling)
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - self.extraDistance)):
                 print('NECK : ',self.recordNeck)
                 print('REC :',self.recordYTopRectangle)
-                print('---------------------------------------')
                 print('Recover From STATE')
                 print('---------------------------------------')
                 self.destroyAll()
@@ -331,12 +333,11 @@ class Terrain(object):
         except Exception as e:
             print('ERROR : -> ',e)
             pass
-            #print('body not in image')
     def generateGraphStable(self):
         plt.cla()
         self.windowNeck.set_ylim([0, 400])
         plt.yticks(range(0, 300, 20), fontsize=14)
-        plt.xlim(0,600)
+        plt.xlim(0,300)
         plt.plot(self.times, self.recordVelocity)
         # print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
         plt.pause(0.01)
@@ -356,7 +357,7 @@ if __name__ == '__main__':
     #broker_address = "iot.eclipse.org"
     # print("creating new instance")
     parser = argparse.ArgumentParser(description='Sent Image to cloud')
-    parser.add_argument('--room', default='1', help='number room')
+    parser.add_argument('--room', default='kitchen', help='name room')
     args = parser.parse_args()
     client = mqtt.Client("comProcess"+args.room)  # create new instance
     # client.on_message = on_message  # attach function to callback

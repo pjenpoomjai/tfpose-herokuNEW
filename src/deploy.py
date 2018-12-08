@@ -74,7 +74,6 @@ def processImage(room):
             print('Send signal to zenbo. ( ' +word+ " )")
             print('Send image too.')
             print('.')
-            print('. .')
             print('Complete.')
     except Exception as e:
         print(e)
