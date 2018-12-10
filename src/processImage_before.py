@@ -84,7 +84,7 @@ class Terrain(object):
     def detecedFirstFalling(self):
         self.detectedNECK_Y = self.highestNeck
         self.detectedHIP_Y  = self.highestHIP
-        print('-----!!!!falling!!!!!!-------')
+        print('-----!!!!falling!!!!!!----------------------------------------------')
         self.surpriseMovingTime = self.globalTime
         self.saveTimesStartFalling = self.times[-1]
         print('set extraDistance')
@@ -93,7 +93,7 @@ class Terrain(object):
         print('set complete ')
     def countdownFalling(self):
         # print('StartTime From: ',self.surpriseMovingTime)
-        print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!')
+        print('!!!!!Countdown[10] : ',self.globalTime - self.surpriseMovingTime,'!!!!!------------')
         # print('would like to Cancel Countdown \nTake your neck to same level as NECK , HIP : ',self.detectedNECK_Y,self.detectedHIP_Y)
         # print('current your NECK : ',self.getLastNeck())
         # print('extraTotal:',self.detectedHIP_Y+self.extraDistance)

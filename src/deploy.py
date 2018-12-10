@@ -4,7 +4,8 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 # import processImage
-import processImage_before
+# import processImage_before
+from processImage_before import Terrain
 import os
 import json
 import cv2
