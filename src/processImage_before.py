@@ -24,10 +24,8 @@ class Terrain(object):
         self.recordNeck = []
         self.recordYTopRectangle = []
         self.recordHIP = []
-        self.recordNeck_Rshoulder = []
         self.recordTimeList = []
         self.globalTime = 0
-        self.fps_time = 0
         self.highestNeck = 0
         self.hightestNeckTime = 0
         self.highestHIP = 0
@@ -55,7 +53,6 @@ class Terrain(object):
         self.times = self.times[-100:]
         self.recordVelocity = self.recordVelocity[-100:]
         self.recordTimeList = self.recordTimeList[-100:]
-        self.recordNeck_Rshoulder = self.recordNeck_Rshoulder[-100:]
         self.recordYTopRectangle = self.recordYTopRectangle[-100:]
     def getLastRecordTime(self):
         if self.recordTimeList==[]:
@@ -75,14 +72,11 @@ class Terrain(object):
     def addRecordVelocity(self,neck,time):
         v = ( abs(neck[-1] - neck[-2]) / abs(time[-1] - time[-2]) )
         self.recordVelocity = self.recordVelocity + [int(v)]
-    def addRecordNeck_RShoulder(self,length):
-        self.recordNeck_Rshoulder = self.recordNeck_Rshoulder+[length]
     def destroyAll(self):
         self.times = []
         self.recordNeck = []
         self.recordHIP = []
         self.recordTimeList = []
-        self.recordNeck_Rshoulder = []
         self.recordVelocity = [0]
         self.recordYTopRectangle = []
         self.resetSurpriseMovingTime()
