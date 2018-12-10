@@ -201,7 +201,7 @@ class Terrain(object):
         print('end-inderence',time.time())
         self.resetBitFalling()
         self.savesecondNeck(image)
-        package = TfPoseEstimator.draw_humans_adpt(image, humans, imgcopy=False)
+        package = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
         self.globalTime = time.time()  #time of after drawing
         image = package[0]
         #status_part_body_appear = package[1]
