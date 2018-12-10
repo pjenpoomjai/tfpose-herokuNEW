@@ -196,7 +196,7 @@ class Terrain(object):
                 self.setFalling()
                 self.destroyAll()
     def mesh(self, image):
-        image = common.read_imgfile(nameImage,None,None)
+        image = common.read_imgfile(image,None,None)
         print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         print('end-inderence',time.time())

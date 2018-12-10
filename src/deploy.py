@@ -62,7 +62,7 @@ def processImage(room):
         print('room : ',room,'----begin mesh function.-----',rounds[index])
         print('time : ',time.time())
         t = terrains[index]
-        t.mesh(image)
+        t.mesh(nameImage)
         FALL_DETECTED = t.getBitFalling()
         print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
