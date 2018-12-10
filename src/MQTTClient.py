@@ -19,6 +19,7 @@ message = 'end'
 camera = int(args.camera)
 recordTime =0
 f = cv2.VideoCapture(camera)
+f.set(cv2.CAP_PROP_AUTOFOCUS, 0) # turn the autofocus off
 numberCount = 0
 listNameImage = range(100) #when save a image from camera
 round = 1

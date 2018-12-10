@@ -8,6 +8,7 @@ import processImage_before
 from processImage import Terrain
 import os
 import json
+import common
 
 #app = Flask(__name__)
 
@@ -61,7 +62,8 @@ def processImage(room):
         print('room : ',room,'----begin mesh function.-----',rounds[index])
         print('time : ',time.time())
         t = terrains[index]
-        t.mesh(nameImage)
+        image = common.read_imgfile(nameImage,None,None)
+        t.mesh(image)
         FALL_DETECTED = t.getBitFalling()
         print('++',room,', : Complete mesh all++')
         if FALL_DETECTED: #when found falling  turn FALL to True
