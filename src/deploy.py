@@ -62,9 +62,6 @@ def processImage(room):
         print('room : ',room,'----begin mesh function.-----',rounds[index])
         print('time : ',time.time())
         t = terrains[index]
-        # image = common.read_imgfile(nameImage,None,None)
-        image = cv2.imread(nameImage)
-        image = cv2.resize(image, (300, 300))
         t.mesh(image)
         FALL_DETECTED = t.getBitFalling()
         print('++',room,', : Complete mesh all++')

@@ -10,7 +10,7 @@ from matplotlib import style
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import imutils
-
+import common
 class Terrain(object):
 
     def __init__(self):
@@ -196,6 +196,7 @@ class Terrain(object):
                 self.setFalling()
                 self.destroyAll()
     def mesh(self, image):
+        image = common.read_imgfile(nameImage,None,None)
         print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         print('end-inderence',time.time())
