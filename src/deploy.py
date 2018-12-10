@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 # import processImage
 import processImage_before
-from processImage import Terrain
 import os
 import json
 import cv2
