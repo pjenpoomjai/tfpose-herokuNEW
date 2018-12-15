@@ -164,11 +164,9 @@ class Terrain(object):
             vThresholdA = int(abs((self.highestHIP - self.highestNeck)) / (timeFall))
             # vThresholdAB = int(abs((self.highestHIP - self.highestNeck)) / (0.45))
             # vThresholdB = int(abs((self.highestHIP - self.highestNeck)) / (0.4))
-            # vThresholdC = int(abs((self.highestHIP - self.highestNeck)) / (0.3))
             print('vHumanFall',vHumanFall,' >= vThA :', vThresholdA)
             # print('vHumanFall',vHumanFall,' >= vThA+B :', vThresholdAB)
             # print('vHumanFall',vHumanFall,' >= vThB :', vThresholdB)
-            # print('vHumanFall',vHumanFall,' >= vThC :', vThresholdC)
             if self.getLastNeck() >= self.highestHIP :
                 print('~~falling~~')
                 if vHumanFall >= vThresholdA:
@@ -180,9 +178,6 @@ class Terrain(object):
                 # if vHumanFall >= vThresholdB:
                 #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
                 #     cv2.imshow('shotFall_lastNECK_0.4',image)
-                # if vHumanFall >= vThresholdC:
-                #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
-                #     cv2.imshow('shotFall_lastNECK_0.3',image)
 
 
         elif self.surpriseMovingTime!=-1:

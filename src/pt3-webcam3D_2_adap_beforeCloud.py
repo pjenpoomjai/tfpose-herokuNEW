@@ -175,11 +175,9 @@ class Terrain(object):
             vThresholdA = int(abs((self.highestHIP - self.highestNeck)) / (timeFall))
             # vThresholdAB = int(abs((self.highestHIP - self.highestNeck)) / (0.45))
             # vThresholdB = int(abs((self.highestHIP - self.highestNeck)) / (0.4))
-            # vThresholdC = int(abs((self.highestHIP - self.highestNeck)) / (0.3))
             print('vHumanFall',vHumanFall,' >= vThA :', vThresholdA)
             # print('vHumanFall',vHumanFall,' >= vThA+B :', vThresholdAB)
             # print('vHumanFall',vHumanFall,' >= vThB :', vThresholdB)
-            # print('vHumanFall',vHumanFall,' >= vThC :', vThresholdC)
             if self.getLastNeck() >= self.highestHIP :
                 print('~~falling~~')
                 if vHumanFall >= vThresholdA:
@@ -193,9 +191,6 @@ class Terrain(object):
                 # if vHumanFall >= vThresholdB:
                 #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
                 #     cv2.imshow('shotFall_lastNECK_0.4',image)
-                # if vHumanFall >= vThresholdC:
-                #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
-                #     cv2.imshow('shotFall_lastNECK_0.3',image)
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - self.extraDistance)):
@@ -250,6 +245,27 @@ class Terrain(object):
         #                   ]
         # detected_part = []
         #UPDATE highest y point NECK  every 1
+        direction = 1
+        if 0 in center_each_body_part:
+            if 14 in center_each_body_part and 15 not in center_each_body_part:
+                direction= 0
+                print('side')
+            elif 15 in center_each_body_part and 14 not in center_each_body_part:
+                direction= 0
+                print('side')
+            elif 14 in center_each_body_part and 15 in center_each_body_part:
+                if center_each_body_part[0][0] < center_each_body_part[14][0] and center_each_body_part[0][0] > center_each_body_part[15][0]:
+                    direction= 0
+                    print('front')
+        if direction:
+            if 2 in center_each_body_part and 5 in center_each_body_part:
+                if center_each_body_part[2][0] < center_each_body_part[5][0]:
+                    direction= 0
+                    print('front')
+                else:
+                    direction= 0
+                    print('back')
+
         # print('start record everything')
         if 1 in center_each_body_part:
             # print(self.globalTime - self.getLastRecordTime())
