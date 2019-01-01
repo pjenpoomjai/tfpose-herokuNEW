@@ -11,7 +11,6 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import imutils
 import argparse
 
-
 class Terrain(object):
 
     def __init__(self):
@@ -29,14 +28,14 @@ class Terrain(object):
 
         # plt.show()
         self.times = []
-        self.recordVelocity = [0]
+        self.recordVelocity = []
         self.recordNeck = []
         self.recordYTopRectangle = []
         self.recordHIP = []
         self.recordTimeList = []
         self.globalTime = 0
         self.highestNeck = 0
-        self.highestNeckTime = 0
+        # self.highestNeckTime = 0
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
 
@@ -45,21 +44,23 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=400,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=300,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
         self.width = 300
-        self.height = 300
+        self.height = 200
         self.quotaVirtureNeck = 3
         self.used_quotaVirtureNeck = 0
+        self.quoutaFalling = 0
         model = 'mobilenet_thin_432x368'
         w, h = model_wh(model)
         camera = 0  # 1 mean external camera , 0 mean internal camera
         self.e = TfPoseEstimator(get_graph_path(model), target_size=(w, h))
         self.cam = cv2.VideoCapture(camera)
-        # self.cam = cv2.VideoCapture('C:/Users/User/.Nimi Places/Containers/Folder/tfpose-herokuNEW/outpy2.avi')
+        # self.cam = cv2.VideoCapture('C:/outpy2.avi')
         self.cam.set(cv2.CAP_PROP_AUTOFOCUS, 0) # turn the autofocus off
+        self.recordAcceleration = []
     def reduceRecord(self) :
         self.recordNeck = self.recordNeck[-100:]
         self.recordHIP = self.recordHIP[-100:]
@@ -67,6 +68,7 @@ class Terrain(object):
         self.recordVelocity = self.recordVelocity[-100:]
         self.recordTimeList = self.recordTimeList[-100:]
         self.recordYTopRectangle = self.recordYTopRectangle[-100:]
+        self.recordAcceleration = self.recordAcceleration[-100:]
     def getLastRecordTime(self):
         if self.recordTimeList==[]:
             return 0
@@ -90,8 +92,10 @@ class Terrain(object):
         self.recordNeck = []
         self.recordHIP = []
         self.recordTimeList = []
-        self.recordVelocity = [0]
+        self.recordVelocity = []
+        self.recordAcceleration = []
         self.recordYTopRectangle = []
+        self.quoutaFalling = 0
         self.resetSurpriseMovingTime()
         self.resetBitFalling()
     def detecedFirstFalling(self):
@@ -161,16 +165,29 @@ class Terrain(object):
         cv2.imshow('na',fgmask)
     def processFall(self,image):
         print('processing falling ---------')
+        totalTime = 0
+        loop = 1
+        for i in range(1,len(self.recordTimeList)):
+            totalTime += self.recordTimeList[-i] - self.recordTimeList[-(i+1)]
+            loop += 1
+            if totalTime>=1:
+                break
+        print('totalTime(velocity):',totalTime,loop)
+        if len(self.recordVelocity)>=2:
+            # ac = (self.recordVelocity[-1] - self.recordVelocity[-2])  / abs(self.recordTimeList[-1] - self.recordTimeList[-2])
+            ac = (max(self.recordVelocity[-loop:]) - min(self.recordVelocity[-loop:]))  / abs(self.recordTimeList[-1] - self.recordTimeList[-loop])
+            self.recordAcceleration += [ac]
+            print('acceleration :',self.recordAcceleration[-loop:])
         print('highestNeck',self.highestNeck)
         print('highestHIP',self.highestHIP)
         print('time duration : ',(self.recordTimeList[-1] - self.recordTimeList[-2]))
-        if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1 :
+        print('max-Velocity :',max(self.recordVelocity[-loop:]))
+        print('velocityCurrent:', self.recordVelocity[-loop:])
+        if self.highestHIP!=0 and len(self.recordNeck)>1 and self.surpriseMovingTime==-1:
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
             print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP)
-            print('max-Velocity :',max(self.recordVelocity[-6:]))
-            vHumanFall = max(self.recordVelocity[-6:])
-            # vHumanFall = abs((self.highestHIP - self.highestNeck) / (self.recordTimeList[-1] - self.highestNeckTime))
+            vHumanFall = max(self.recordVelocity[-loop:])
             timeFall = 0.5
             vThresholdA = int(abs((self.highestHIP - self.highestNeck)) / (timeFall))
             # vThresholdAB = int(abs((self.highestHIP - self.highestNeck)) / (0.45))
@@ -178,19 +195,40 @@ class Terrain(object):
             print('vHumanFall',vHumanFall,' >= vThA :', vThresholdA)
             # print('vHumanFall',vHumanFall,' >= vThA+B :', vThresholdAB)
             # print('vHumanFall',vHumanFall,' >= vThB :', vThresholdB)
-            if self.getLastNeck() >= self.highestHIP :
+            t = self.recordTimeList[-1]
+            for i in range(1,loop):
+                if abs(self.recordTimeList[-i] - self.recordTimeList[- (i+1) ]) <t :
+                    t = abs(self.recordTimeList[-i] - self.recordTimeList[- (i+1) ])
+            print(max(self.recordAcceleration[-loop:]),(( self.highestHIP - self.highestNeck )/(t**2)))
+            vM = (self.highestHIP - self.highestNeck) / t
+            aM = ((self.highestHIP - self.highestNeck) / t) / abs(self.recordTimeList[-1] - self.recordTimeList[-loop])
+            i = 0.3
+            print((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) ),'> 0.3 ??')
+            if self.getLastNeck() < self.highestHIP :
+                self.quoutaFalling = 0
+            if self.getLastNeck() >= self.highestHIP and self.quoutaFalling<2:
                 print('~~falling~~')
-                if vHumanFall >= vThresholdA:
+                self.quoutaFalling += 1
+                print('threshold : ',2.96*t)
+                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) >  (2.96*t): #0.4
                     self.detecedFirstFalling()
-                    cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
-                    cv2.imshow('shotFall_lastNECK_0.5',image)
-                # if vHumanFall >= vThresholdAB:
+                    # cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
+                    cv2.imshow('shotFall_lastNECK_0.3',image)
+                # if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-6:] )/(aM) )) >  0.45:
+                #     cv2.imshow('shotFall_lastNECK_0.45',image)
+                # if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-6:] )/(aM) )) >  0.5:
+                #     cv2.imshow('shotFall_lastNECK_0.5',image)
+                # if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-6:] )/(aM) )) >  0.6:
+                #     cv2.imshow('shotFall_lastNECK_0.6',image)
+                # if vHumanFall >= vThresholdA:
                 #     self.detecedFirstFalling()
                 #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
-                #     cv2.imshow('shotFall_lastNECK_0.45',image)
-                # if vHumanFall >= vThresholdB:
-                #     cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
-                #     cv2.imshow('shotFall_lastNECK_0.4',image)
+                #     cv2.imshow('shotFall_lastNECK_0.5',image)
+
+                #percent
+                # if max(self.recordAcceleration[-6:])/(( self.highestHIP - self.highestNeck )/(t**2) ) > 0.5:
+                #     self.detecedFirstFalling()
+                #     cv2.imshow('shotFall_lastNECK_0.5',image)
         elif self.surpriseMovingTime!=-1:
             self.countdownFalling()
             if self.globalTime - self.surpriseMovingTime >= 2 and (self.getLastNeck() <= (self.detectedHIP_Y - self.extraDistance)):
@@ -215,10 +253,10 @@ class Terrain(object):
         # status_part_body_appear = package[1]
         center_each_body_part = package[2]
         #camera not found NECK more than 10 second then reset list
-        if self.globalTime - self.getLastRecordTime() >= 12:
+        if self.globalTime - self.getLastTimesFoundNeck() >= 12:
             # print('RESET STABLE,RECORDNECK,HIP,etc. [complete 12 second]')
             self.destroyAll()
-        if self.globalTime - self.getLastRecordTime() >= 2:
+        if self.globalTime - self.getLastTimesFoundNeck() >= 2:
             # print('maybe NECK or HUMAN not found [complete 2 second]')
             self.human_in_frame=False
         # print('end Initialize mesh')
@@ -244,75 +282,59 @@ class Terrain(object):
         #                   "LEar",  # 17
         #                   ]
         # detected_part = []
-        #UPDATE highest y point NECK  every 1
-        direction = 1
-        if 0 in center_each_body_part:
-            if 14 in center_each_body_part and 15 not in center_each_body_part:
-                direction= 0
-                print('side')
-            elif 15 in center_each_body_part and 14 not in center_each_body_part:
-                direction= 0
-                print('side')
-            elif 14 in center_each_body_part and 15 in center_each_body_part:
-                if center_each_body_part[0][0] < center_each_body_part[14][0] and center_each_body_part[0][0] > center_each_body_part[15][0]:
-                    direction= 0
-                    print('front')
-        if direction:
-            if 2 in center_each_body_part and 5 in center_each_body_part:
-                if center_each_body_part[2][0] < center_each_body_part[5][0]:
-                    direction= 0
-                    print('front')
-                else:
-                    direction= 0
-                    print('back')
-
         # print('start record everything')
+        self.addRecordTime(self.globalTime)
         if 1 in center_each_body_part:
-            # print(self.globalTime - self.getLastRecordTime())
             self.addCountTimes()
-            self.addRecordTime(self.globalTime)
             self.human_in_frame = True
-            self.lastTimesFoundNeck =self.getLastTimes()
+            self.lastTimesFoundNeck = self.recordTimeList[-1]
             self.used_quotaVirtureNeck=0
             self.addRecordNeck(center_each_body_part[1][1])
-            self.addRecordVelocity(self.recordNeck,self.recordTimeList)
+            if len(self.recordNeck) >= 2:
+                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
             if 11 in center_each_body_part:
                 self.addRecordHIP(center_each_body_part[11][1])
                 print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
             elif 8 in center_each_body_part:
                 self.addRecordHIP(center_each_body_part[8][1])
                 print('neck :| HIP: ',self.recordHIP[-1] - self.recordNeck[-1])
-        elif self.getLastTimesFoundNeck()==self.getLastTimes() and self.used_quotaVirtureNeck < self.quotaVirtureNeck and self.secondNeck >= self.getLastNeck():
-            # print(self.globalTime - self.getLastRecordTime())
+        elif self.used_quotaVirtureNeck < self.quotaVirtureNeck and self.secondNeck >= self.getLastNeck():
             self.addCountTimes()
-            self.addRecordTime(self.globalTime)
-            self.lastTimesFoundNeck =self.getLastTimes()
+            self.lastTimesFoundNeck = self.recordTimeList[-1]
             self.addRecordNeck(self.getSecondNeck())
-            self.addRecordVelocity(self.recordYTopRectangle,self.recordTimeList)
+            if len(self.recordNeck) >= 2:
+                self.addRecordVelocity(self.recordNeck,self.recordTimeList)
             print('addSecond Neck',self.used_quotaVirtureNeck)
             cv2.line(image, (0, self.getLastNeck()), (self.width, self.getLastNeck()), (0, 255, 0), 2)
             cv2.imshow('add_secondNeck',image)
             self.used_quotaVirtureNeck+=1
-        if len(self.recordNeck) > 300: #when record list more than 600 -> reduce
+        if len(self.recordNeck) > 300: #when record list more than 300 -> reduce
             self.reduceRecord()
         # print('find highest neck , hip')
+        totalTime = 0
+        loop = 1
+        for i in range(1,len(self.recordTimeList)):
+            totalTime += self.recordTimeList[-i] - self.recordTimeList[-(i+1)]
+            loop += 1
+            if totalTime>=2:
+                break
+        print('totalTime:',totalTime,loop)
         minNumber = -1
-        loop = 6
         if len(self.recordNeck) < loop:
             loop = len(self.recordNeck)
         for i in range(1,loop+1):
             if minNumber==-1 or self.recordNeck[-i] <= minNumber:
                 self.highestNeck = self.recordNeck[-i] #more HIGH more low value
-                self.highestNeckTime = self.recordTimeList[-i]
+                # self.highestNeckTime = self.recordTimeList[-i]
                 minNumber = self.recordNeck[-i]
-        print('hightestTIMENECK', self.highestNeckTime)
+        # print('hightestTIMENECK', self.highestNeckTime)
         if len(self.recordHIP)>1:
             #11 L_HIP
             if 11 in center_each_body_part:
-                self.highestHIP = min(self.recordHIP[-6:])
+                self.highestHIP = min(self.recordHIP[-loop:])
             #8 R_HIP
             elif 8 in center_each_body_part:
-                self.highestHIP = min(self.recordHIP[-6:])
+                self.highestHIP = min(self.recordHIP[-loop:])
         if len(self.recordNeck) > 1:
             self.processFall(image)
             # print('end processing falling end mash()')
@@ -334,42 +356,28 @@ class Terrain(object):
             # print('NEWROUND')
             image = cv2.resize(image, (self.width, self.height))
             cv2.imshow('normal', image)
-            self.mesh(image)
+            print(time.time() - self.globalTime)
+            if time.time() - self.globalTime > 0.033:
+#0.003=0.135(7frame) 0.015=0.16(6.25frame) 0.033=0.2(5frame) 0.080=0.25(4.3frame) 0.15=0.33(3.2frame) 0.30=0.48 (2.08frame)
+                self.mesh(image)
             # print('--generateGraphStable--')
-            self.generateGraphStable()
+            # self.generateGraphStable()
             # print('COMPLETE-')
         except Exception as e:
             print('ERROR : -> ',e)
             pass
     def generateGraphStable(self):
         plt.cla()
-        self.windowNeck.set_ylim([0, 400])
-        plt.yticks(range(0, 300, 20), fontsize=14)
+        self.windowNeck.set_ylim([0, 900])
+        plt.yticks(range(0, 900, 20), fontsize=14)
         plt.xlim(0,300)
-        plt.plot(self.times, self.recordVelocity)
+        plt.plot(range(len(self.recordAcceleration)), self.recordAcceleration)
         # print('--- Times : ',self.getLastTimes(),'||| plot at Time : ',self.getLastRecordTime(),'||| Value : ',self.getLastNeck())
         plt.pause(0.01)
         # print('finish')
-    def test_video(self):
-        for i in range(10):
-            ret_val, image = self.cam.read()
-        try:
-            image = cv2.resize(image, (self.width, self.height))
-            cv2.imshow('normal', image)
-            # print('NEWROUND')
-            self.mesh(image)
-            # print('--generateGraphStable--')
-            self.generateGraphStable()
-            # print('COMPLETE-')
-        except Exception as e:
-            print('ERROR : -> ',e)
-            pass
-        # cv2.waitKey(28) & 0xFF == ord('q')
-
     def animation(self):
         while (self.cam.isOpened()):
             print('update...'+args.room)
-            # self.test_video()
             self.update()
             if cv2.waitKey(1) == ord('q'):
                 self.cam.release()
