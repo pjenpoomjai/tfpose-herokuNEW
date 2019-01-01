@@ -297,7 +297,6 @@ class Terrain(object):
                 self.highestNeck = self.recordNeck[-i] #more HIGH more low value
                 # self.highestNeckTime = self.recordTimeList[-i]
                 minNumber = self.recordNeck[-i]
-        print('hightestTIMENECK', self.hightestNeckTime)
         if len(self.recordHIP)>1:
             #11 L_HIP
             if 11 in center_each_body_part:
