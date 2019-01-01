@@ -31,7 +31,7 @@ class Terrain(object):
         self.highestHIP = 0
         self.saveTimesStartFalling = -1
 
-self.quoutaFalling = 0
+        self.quoutaFalling = 0
         self.surpriseMovingTime = -1
         self.detectedHIP_Y = 0
         self.detectedNECK_Y = 0
