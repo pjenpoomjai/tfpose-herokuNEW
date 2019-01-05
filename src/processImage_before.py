@@ -211,6 +211,7 @@ class Terrain(object):
                 self.destroyAll()
     def mesh(self, image):
         image = common.read_imgfile(image,None,None)
+        image = cv2.resize(image, (self.width, self.height))
         print('start-inderence',time.time())
         humans = self.e.inference(image, scales=[None])
         print('end-inderence',time.time())

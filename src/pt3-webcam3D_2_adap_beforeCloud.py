@@ -44,7 +44,7 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=300,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=500,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1
@@ -209,8 +209,8 @@ class Terrain(object):
             if self.getLastNeck() >= self.highestHIP and self.quoutaFalling<2:
                 print('~~falling~~')
                 self.quoutaFalling += 1
-                print('threshold : ',2.96*t)
-                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) >  (2.96*t): #0.4
+                print('threshold : ',3*t)
+                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) >  0.35: #0.4
                     self.detecedFirstFalling()
                     # cv2.line(image, (0, self.getLastNeck()), (self.height,self.getLastNeck()), (0, 255, 0), 2)
                     cv2.imshow('shotFall_lastNECK_0.3',image)
@@ -356,9 +356,9 @@ class Terrain(object):
             image = cv2.resize(image, (self.width, self.height))
             cv2.imshow('normal', image)
             print(time.time() - self.globalTime)
-            if time.time() - self.globalTime > 0.033:
+            # if time.time() - self.globalTime:
 #0.003=0.135(7frame) 0.015=0.16(6.25frame) 0.033=0.2(5frame) 0.080=0.25(4.3frame) 0.15=0.33(3.2frame) 0.30=0.48 (2.08frame)
-                self.mesh(image)
+            self.mesh(image)
             # print('--generateGraphStable--')
             # self.generateGraphStable()
             # print('COMPLETE-')
