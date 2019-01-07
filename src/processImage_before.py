@@ -37,7 +37,7 @@ class Terrain(object):
         self.detectedNECK_Y = 0
         self.extraDistance = 0
 
-        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=300,detectShadows=False)
+        self.fgbg = cv2.createBackgroundSubtractorMOG2(history=1,varThreshold=500,detectShadows=False)
         self.secondNeck = 0
         self.human_in_frame = False
         self.lastTimesFoundNeck = -1

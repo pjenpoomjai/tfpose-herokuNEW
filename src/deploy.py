@@ -20,6 +20,8 @@ def on_connect(client, userdata, flags, rc):
     # reconnect then subscriptions will be renewed.
     client.subscribe("zenbo/image")
 def on_message(client, userdata, msg):
+    print(time.time())
+    a = time.time()
     print ("Topic : ", msg.topic)
     # print(data["byteArr"])
     count_letter = int(msg.payload[-1])
@@ -34,6 +36,7 @@ def on_message(client, userdata, msg):
     print('Received data.')
     print('Complete : split room number and image.',name_room)
     processImage(name_room)
+    print(time.time() - a )
 def run():
     broker_address = "broker.mqttdashboard.com"
     #broker_address = "iot.eclipse.org"
