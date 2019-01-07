@@ -79,6 +79,7 @@ def processImage(room):
             print('Send image too.')
             print('.')
             print('Complete.')
+            t.destroyAll()
     except Exception as e:
         print(e)
         print("Image not clear")
