@@ -164,9 +164,11 @@ class Terrain(object):
                 break
         print('totalTime(velocity):',totalTime,loop)
         if len(self.recordVelocity)>=2:
-            # ac = (self.recordVelocity[-1] - self.recordVelocity[-2])  / abs(self.recordTimeList[-1] - self.recordTimeList[-2])
+
+            #calculate acceleration
             ac = (max(self.recordVelocity[-loop:]) - min(self.recordVelocity[-loop:]))  / abs(self.recordTimeList[-1] - self.recordTimeList[-loop])
             self.recordAcceleration += [ac]
+
             print('acceleration :',self.recordAcceleration[-loop:])
         print('highestNeck',self.highestNeck)
         print('highestHIP',self.highestHIP)
@@ -177,26 +179,34 @@ class Terrain(object):
             #NECK new Y point > NECK lastest Y point      falling
             #high , y low     || low , y high
             print('LAST_NECK',self.getLastNeck(),'HIGHTEST_HIP', self.highestHIP)
+
+            #get max human's velocity in last 1 second
             vHumanFall = max(self.recordVelocity[-loop:])
-            timeFall = 0.5
-            vThresholdA = int(abs((self.highestHIP - self.highestNeck)) / (timeFall))
-            print('vHumanFall',vHumanFall,' >= vThA :', vThresholdA)
+            
             t = self.recordTimeList[-1]
+
+            #get minimum time per frame in last 1 second 
             for i in range(1,loop):
                 if abs(self.recordTimeList[-i] - self.recordTimeList[- (i+1) ]) <t :
                     t = abs(self.recordTimeList[-i] - self.recordTimeList[- (i+1) ])
+            
             print(max(self.recordAcceleration[-loop:]),(( self.highestHIP - self.highestNeck )/(t**2)))
-            vM = (self.highestHIP - self.highestNeck) / t
+
+            # Max velcity
+            vM = (self.highestHIP - self.highestNeck) / t 
+            # Max acceleration
             aM = ((self.highestHIP - self.highestNeck) / t) / abs(self.recordTimeList[-1] - self.recordTimeList[-loop])
+
             i = 0.3
-            print((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) ),'> 0.3 ??')
+            print((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) ),'> 0.35 ??')
             if self.getLastNeck() < self.highestHIP :
                 self.quoutaFalling = 0
             if self.getLastNeck() >= self.highestHIP and self.quoutaFalling<2:
                 print('~~falling~~')
                 self.quoutaFalling += 1
-                print('threshold : ',2.96*t)
-                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) >  (2.96*t): #0.4
+
+                # final equation after normalized and weight wA at 0.3
+                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) > 0.35 #0.4
                     self.detecedFirstFalling()
 
         elif self.surpriseMovingTime!=-1:
@@ -205,6 +215,7 @@ class Terrain(object):
                 print('Recover From STATE')
                 print('---------------------------------------')
                 self.destroyAll()
+            #in 10 second person not movig up --> FALL DETECTED
             elif self.globalTime - self.surpriseMovingTime >= 10:
                 print('Warning : Falling happening')
                 self.setFalling()
