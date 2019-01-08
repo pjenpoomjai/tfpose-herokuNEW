@@ -262,7 +262,6 @@ class Terrain(object):
         #                   "LEar",  # 17
         #                   ]
         # detected_part = []
-        #UPDATE highest y point NECK  every 1
         self.addRecordTime(self.globalTime)
         print('start record everything')
         if 1 in center_each_body_part:
