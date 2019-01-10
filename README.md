@@ -9,14 +9,14 @@ You need dependencies below.
 
 ### Install
 ```
- $ git clone https://www.github.com/pjenpoomjai/tfpose-herokuNEW
- $ cd tfpose-herokuNEW
+ $ git clone https://www.github.com/pjenpoomjai/tfpose-fallDetection
+ $ cd tfpose-fallDetection
  $ python setup.py install
  $ pip install -r requirements.txt
 ```
 
 ### Run
 ```
- $ cd tfpose-herokuNEW
+ $ cd tfpose-fallDetection
  $ python src\pt3-webcam3D_2_adap_beforeCloud.py 
 ```
