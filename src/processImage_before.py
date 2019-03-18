@@ -206,7 +206,7 @@ class Terrain(object):
                 self.quoutaFalling += 1
 
                 # final equation after normalized and weight wA at 0.3
-                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) > 0.35 #0.4
+                if ((vHumanFall/vM)*(1-i) + i*( max( self.recordAcceleration[-loop:] )/(aM) )) > 0.35: #0.4
                     self.detecedFirstFalling()
 
         elif self.surpriseMovingTime!=-1:
