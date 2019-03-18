@@ -6,6 +6,7 @@ import cv2
 parser = argparse.ArgumentParser(description='Sent Image to cloud')
 parser.add_argument('--room', default='somewhere', help='name room')
 parser.add_argument('--camera', default='0', help='camera in or out  [1, 0]')
+parser.add_argument('--show', default='0', help='show what camera see [1, 0]')
 args = parser.parse_args()
 broker_address = "broker.mqttdashboard.com"
 #broker_address = "iot.eclipse.org"
@@ -26,7 +27,8 @@ round = 1
 # client.publish(topic="nonine", payload= "FALL" ,qos=0)
 while True:
     ret_int,img = f.read()
-    # cv2.imshow('came',img)
+    if int(args.show):
+        cv2.imshow('came',img)
     #if recordTime!=int(time.time()):    3 picture / sec
     if time.time() - recordTime >= 0.25:
         # print(time.time() - recordTime)
